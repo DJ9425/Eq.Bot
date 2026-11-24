@@ -60,10 +60,7 @@
     .hero-figure { overflow: hidden; border-radius: .75rem; border: 1px solid var(--line); background: #fff; box-shadow: 0 9px 25px #21443d12; }
     .hero-figure img { padding: .45rem; }
     .hero-figure figcaption { padding: .75rem 1rem; font-size: .92rem; color: var(--muted); }
-    .people { margin-top: 1rem; text-align: center; }
-    .authors { max-width: none; display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem 1rem; font-weight: 700; }
-    .affiliations { max-width: 60rem; margin: .35rem auto 0; color: var(--muted); font-size: .92rem; }
-    .affiliations span { display: inline-block; margin-right: 1rem; }
+    .submission-status { max-width: none; margin-top: .8rem; color: var(--muted); font-size: 1rem; font-weight: 680; }
     .section { padding-block: clamp(2rem, 4.5vw, 3.7rem); border-bottom: 1px solid var(--line); scroll-margin-top: .8rem; }
     .tinted { background: var(--paper); }
     .section-head { margin-bottom: 1.45rem; }
@@ -109,7 +106,6 @@
     .setup-note { display: grid; grid-template-columns: minmax(0, 17rem) minmax(0,1fr); gap: 1rem; align-items: center; margin-top: 1.6rem; }
     .setup-note img { border: 1px solid var(--line); border-radius: .5rem; }
     .setup-note figcaption { color: var(--muted); font-size: .93rem; }
-    pre { overflow-x: auto; margin: 1rem 0 0; padding: 1rem; border-radius: .6rem; border: 1px solid var(--line); background: var(--paper); font-size: .92rem; line-height: 1.55; }
     .site-footer { padding: 1.15rem 0; color: var(--muted); font-size: .93rem; }
     @media (max-width: 56rem) {
       .hero-grid { grid-template-columns: 1fr; }
@@ -141,7 +137,6 @@
         <a href="#model-architecture">Model Architecture</a>
         <a href="#results">Results</a>
         <a href="#rollouts">Rollouts</a>
-        <a href="#citation">Citation</a>
       </nav>
     </div>
   </header>
@@ -151,27 +146,10 @@
         <header class="project-heading">
           <p class="kicker">Robot learning · Geometric equivariance</p>
           <h1 id="page-title">Eq.Bot: Model-Agnostic Canonicalization for Equivariant Robotic Manipulation</h1>
+          <p class="submission-status">Anonymous submission</p>
         </header>
-        <div class="people">
-          <p class="authors">
-            <span>Jian Deng<sup>1</sup></span>
-            <span>Yuandong Wang<sup>1†</sup></span>
-            <span>Yangfu Zhu<sup>1</sup></span>
-            <span>Tao Feng<sup>2</sup></span>
-            <span>Tianyu Wo<sup>3</sup></span>
-            <span>Zhenzhou Shao<sup>1†</sup></span>
-          </p>
-          <p class="affiliations">
-            <span><sup>1</sup> Beijing Key Laboratory of Light Industrial Robot and Safety Verification, Capital Normal University</span>
-            <span><sup>2</sup> Department of Computer Science and Technology, Tsinghua University</span>
-            <span><sup>3</sup> School of Software, Beihang University</span>
-            <span><sup>†</sup> Correspondence: <a href="mailto:wangyd@cnu.edu.cn">wangyd@cnu.edu.cn</a>, <a href="mailto:zshao@cnu.edu.cn">zshao@cnu.edu.cn</a></span>
-          </p>
-        </div>
         <div class="actions">
           <a class="action primary" href="#rollouts">Watch robot rollouts</a>
-          <a class="action" href="https://arxiv.org/abs/2511.15194">arXiv</a>
-          <a class="action" href="https://github.com/CNU-Bot-Group/Eq_Bot/tree/main">Original code</a>
         </div>
         <div class="hero-grid" id="abstract">
           <div class="overview-copy">
@@ -290,20 +268,6 @@
       </div>
     </section>
 
-    <section class="section" id="citation" aria-labelledby="citation-title">
-      <div class="wrap">
-        <header class="section-head">
-          <h2 id="citation-title">Citation</h2>
-          <p>This page reflects the revised manuscript. The linked arXiv record is the 2025 preprint, cited below under its original title. Updated experiment code and data are being prepared for release.</p>
-        </header>
-        <pre><code>@article{deng2025eqbot,
-  title   = {Eq.Bot: Enhance Robotic Manipulation Learning via Group Equivariant Canonicalization},
-  author  = {Deng, Jian and Wang, Yuandong and Zhu, Yangfu and Feng, Tao and Wo, Tianyu and Shao, Zhenzhou},
-  journal = {arXiv preprint arXiv:2511.15194},
-  year    = {2025}
-}</code></pre>
-      </div>
-    </section>
   </main>
   <footer class="site-footer">
     <div class="wrap"><a href="#top">Back to top</a></div>
