@@ -55,7 +55,7 @@
     .overview-title { grid-column: 1 / -1; }
     .overview-copy { display: flex; flex-direction: column; justify-content: space-between; gap: .75rem; }
     .overview-copy p { max-width: none; color: var(--muted); }
-    .overview-copy, .section-head > p, .rollouts-head > p, .method-note p { text-align: justify; hyphens: auto; }
+    .overview-copy, .section-head > p, .rollouts-copy > p, .method-note p, .result-analysis p { text-align: justify; hyphens: auto; }
     .hero-figure { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; border-radius: .75rem; border: 1px solid var(--line); background: #fff; box-shadow: 0 9px 25px #21443d12; }
     .hero-figure img { padding: .45rem; }
     .hero-figure figcaption { padding: .5rem .75rem; font-size: .92rem; color: var(--muted); }
@@ -64,8 +64,8 @@
     .tinted { background: var(--paper); }
     .section-head { margin-bottom: 1.45rem; }
     .section-head > p { max-width: none; margin-top: .65rem; color: var(--muted); }
-    .rollouts-head { row-gap: .8rem; align-items: start; margin-top: .65rem; }
-    .rollouts-head > p { max-width: none; color: var(--muted); }
+    .rollouts-head { row-gap: .65rem; align-items: start; }
+    .rollouts-copy > p { max-width: none; margin-top: .65rem; color: var(--muted); }
     .figure { margin-top: 1.35rem; overflow: hidden; border: 1px solid var(--line); border-radius: .8rem; background: white; }
     .figure img { padding: .5rem; }
     .figure figcaption { padding: .7rem 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .93rem; }
@@ -90,7 +90,11 @@
     .best { color: var(--teal-dark); font-weight: 810; }
     .result-figure a { display: block; }
     .result-figure a:focus-visible { outline-offset: -4px; }
-    .result-figure + .result-figure { margin-top: 1rem; }
+    .result-figure figcaption { text-align: center; }
+    .result-analysis { display: grid; gap: .6rem; margin-block: .85rem 1.25rem; color: var(--muted); }
+    .result-analysis p { max-width: none; }
+    .rollout-results { margin-top: 0; }
+    .rollout-results + .scroll-table { margin-top: 1.1rem; }
     .subsection { margin-top: 1.7rem; }
     .subsection > h3 { margin-bottom: .75rem; }
     .trial-browser { margin-top: .85rem; padding: 1rem; border: 1px solid var(--line); border-radius: .7rem; background: #fff; }
@@ -103,14 +107,21 @@
     .clip video { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #13252a; }
     .clip figcaption { padding: .48rem .65rem; color: var(--ink); font-weight: 650; font-size: .87rem; }
     .clip figcaption a { display: inline-block; margin-left: .35rem; font-weight: 500; }
-    .setup-note { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: .6rem; background: #fff; }
-    .setup-note img { align-self: start; }
-    .setup-note figcaption { padding: .58rem .75rem; color: var(--muted); font-size: .88rem; }
-    .setup-note figcaption strong { display: block; margin-bottom: .25rem; color: var(--ink); }
+    .setup-photo { overflow: hidden; border-radius: .65rem; }
+    .setup-note figcaption { padding-inline: .2rem; margin-top: .45rem; color: var(--muted); font-size: .9rem; text-align: justify; hyphens: auto; }
+    .setup-note figcaption strong { color: var(--ink); }
+    @media (min-width: 56.001rem) {
+      @supports (grid-template-rows: subgrid) {
+        .setup-note { display: grid; grid-template-rows: subgrid; grid-column: 2; grid-row: 1 / span 2; align-self: stretch; }
+        .setup-photo { position: relative; min-height: 0; }
+        .setup-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+        .setup-note figcaption { margin-top: 0; }
+      }
+    }
     .site-footer { padding: 1.15rem 0; color: var(--muted); font-size: .93rem; }
     @media (max-width: 56rem) {
       .hero-grid, .rollouts-head { grid-template-columns: minmax(0, 1fr); }
-      .overview-copy, .section-head > p, .rollouts-head > p, .method-note p { text-align: start; }
+      .overview-copy, .section-head > p, .rollouts-copy > p, .method-note p, .result-analysis p { text-align: start; }
       .hero-figure { width: min(100%, 32rem); margin-inline: auto; }
       .setup-note { max-width: 33rem; }
       .video-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
@@ -118,7 +129,7 @@
     @media (max-width: 37rem) {
       .wrap { width: calc(100% - 1.5rem); }
       nav { gap: .15rem .85rem; }
-      .setup-note { grid-template-columns: minmax(0, 1fr); max-width: 20rem; }
+      .setup-note { max-width: 22rem; }
       .stages, .variants { grid-template-columns: 1fr; gap: .65rem; }
       .trial-browser { padding: .65rem; }
     }
@@ -152,10 +163,12 @@
         <div class="hero-grid" id="abstract">
           <h2 class="overview-title">Overview</h2>
           <div class="overview-copy">
-            <p>Robotic manipulation is shifting from task-specific learning towards general-purpose vision-language-action (VLA) models. Despite their strong semantic generalization, these models remain sensitive to geometric transformations such as rotations. Existing approaches introduce equivariance through specialized architectures or symmetrization, often requiring network modifications or repeated policy evaluations. Meanwhile, heterogeneous action representations across VLA architectures further complicate maintaining geometric consistency. Inspired by human spatial reasoning, we propose Eq.Bot, a model-agnostic canonicalization framework grounded in group equivariance for geometrically consistent robotic manipulation. Eq.Bot aligns observations to a learned canonical frame, evaluates the base policy once, and recovers actions in the original coordinates through representation-specific mappings, preserving the policy's internal architecture. Experiments across four simulation benchmarks and three real-world tasks demonstrate improved manipulation performance across CNN- and Transformer-based policies of different scales while introducing modest inference overhead.</p>
-            <!-- <p>Recognizing the target object does not ensure that a robot’s action rotates with the scene. This challenge spans policies that predict pixel affordances, Cartesian motions, and joint targets.</p> -->
-            <!-- <p>Eq.Bot aligns each observation to a learned canonical frame and runs the base policy once. It then uses the same frame to recover the predicted action in the original coordinates, respecting the policy’s native output representation.</p> -->
-            <!-- <p>Both mappings operate outside the policy network. Across four simulation benchmarks and three physical tasks, Eq.Bot improves manipulation performance for CNN- and Transformer-based policies.</p> -->
+            <p>Robotic manipulation is shifting from task-specific learning towards general-purpose vision-language-action (VLA) models. Despite their strong semantic generalization, these models remain sensitive to geometric transformations such as rotations. Existing approaches introduce equivariance through specialized architectures or symmetrization, often requiring network modifications or repeated policy evaluations. Meanwhile, heterogeneous action representations across VLA architectures further complicate maintaining geometric consistency.</p>
+            <p>Inspired by human spatial reasoning, we propose Eq.Bot, a model-agnostic canonicalization framework grounded in group equivariance for geometrically consistent robotic manipulation. Eq.Bot aligns observations to a learned canonical frame, evaluates the base policy once, and recovers actions in the original coordinates through representation-specific mappings, preserving the policy's internal architecture.</p>
+            <p>Experiments across four simulation benchmarks and three real-world tasks demonstrate improved manipulation performance across CNN- and Transformer-based policies of different scales while introducing modest inference overhead.</p>
+            <!-- <p>Recognizing the target object does not ensure that a robot’s action rotates with the scene. This challenge spans policies that predict pixel affordances, Cartesian motions, and joint targets.</p>
+            <p>Eq.Bot aligns each observation to a learned canonical frame and runs the base policy once. It then uses the same frame to recover the predicted action in the original coordinates, respecting the policy’s native output representation.</p>
+            <p>Both mappings operate outside the policy network. Across four simulation benchmarks and three physical tasks, Eq.Bot improves manipulation performance for CNN- and Transformer-based policies.</p> -->
           </div>
           <figure class="hero-figure" id="visual-intro">
             <a href="img/visual_intr.png"><img src="img/visual_intr.png" width="2320" height="1436" alt="View the full-size figure comparing human mental alignment, direct policy prediction, and Eq.Bot on a rotated scene" /></a>
@@ -169,7 +182,7 @@
       <div class="wrap">
         <header class="section-head">
           <h2 id="architecture-title">Model Architecture</h2>
-          <p>One learned frame connects the input and output transformations. The existing policy operates on a common view with its original language instruction.</p>
+          <p>Eq.Bot uses one learned frame to couple observation canonicalization with action recovery. The inverse frame transform aligns the observation before prediction, while the forward transform recovers the predicted action in the original coordinates. Only the selected view is passed to the base policy, so its architecture, language input, and native action interface are preserved.</p>
         </header>
         <figure class="figure">
           <img src="img/overview.jpg" width="6554" height="2606" loading="lazy" alt="Eq.Bot pipeline with observation alignment, base-policy prediction and action recovery, including DirNet and OptNet frame scoring" />
@@ -178,11 +191,11 @@
         <ol class="stages">
           <li><h3>Align the observation</h3><p>Estimate a transform from the canonical frame to the original frame. Apply its inverse to the observation to obtain the canonical view.</p></li>
           <li><h3>Predict in the canonical frame</h3><p>Run the base policy once on the selected view. Its architecture, language instruction, and action representation remain unchanged.</p></li>
-          <li><h3>Recover the original action</h3><p>Use the estimated frame to map pixel affordances, Cartesian actions, or joint targets back to the original coordinates.</p></li>
+          <li><h3>Recover the original action</h3><p>Use the estimated frame to transform spatial affordances, Cartesian poses or increments, or bimanual joint targets. Each mapping respects the base policy’s action representation.</p></li>
         </ol>
         <div class="variants">
-          <article><h3>DirNet</h3><p>Group-equivariant features give a score for each candidate orientation directly from the observation.</p></article>
-          <article><h3>OptNet</h3><p>A conventional encoder scores transformed views by cosine similarity to a learned reference vector.</p></article>
+          <article><h3>DirNet</h3><p>Group-equivariant features encode candidate orientations in separate channels. Pooling over the spatial and feature dimensions yields a score for each candidate directly from the observation.</p></article>
+          <article><h3>OptNet</h3><p>A conventional encoder extracts features from each rotated view. Cosine similarity to a learned reference vector selects the canonical view, and task supervision shapes the reference.</p></article>
         </div>
         <div class="note method-note">
           <p>The canonicalizer learns jointly with the trainable policy components under task supervision. The main experiments use planar quarter turns (C<sub>4</sub>). With the instruction held fixed, the composite policy is equivariant when frame estimates transform consistently and the observation and action mappings are compatible on the valid domain.</p>
@@ -194,7 +207,7 @@
       <div class="wrap">
         <header class="section-head">
           <h2 id="results-title">Experimental Results</h2>
-          <p>We evaluate Eq.Bot on Ravens, LIBERO, VLABench, and RoboTwin 2.0 with CNN- and Transformer-based policies. The results cover task completion, generalization to unseen settings, and bimanual manipulation. Select a figure to view it at full size.</p>
+          <p>We compare Eq.Bot with the corresponding base policies across four simulation benchmarks. Ravens tests spatial manipulation under different demonstration budgets; LIBERO covers four manipulation suites, VLABench tests generalization across five tracks, and RoboTwin 2.0 evaluates bimanual manipulation under Clean and Randomized conditions. Select a figure to view the full comparison.</p>
         </header>
         <div class="subsection">
           <h3>Simulation Results</h3>
@@ -202,26 +215,41 @@
             <a href="img/ravens.png" target="_blank" rel="noopener"><img src="img/ravens.png" width="2583" height="1383" loading="lazy" alt="Full Ravens comparison for 18 task settings at 1, 10, 100, and 1,000 demonstrations per task" /></a>
             <figcaption><strong>CNN-based policies.</strong> Task completion scores (%) on Ravens for CLIPORT, its Eq.Bot variants, and three reference methods across seen and unseen settings.</figcaption>
           </figure>
+          <div class="result-analysis">
+            <p><strong>Ravens.</strong> With 100 demonstrations, OptNet and DirNet raise CLIPORT’s completion score on <i>align-rope</i> from 62.4% to 92.6% and 93.6%. With just 10 demonstrations on <i>packing-unseen-shapes</i>, completion rises from 28.0% to 38.0% and 44.0%. These gains span both precise spatial manipulation and generalization to unseen object shapes.</p>
+          </div>
           <figure class="figure result-figure" id="libero">
             <a href="img/transformers.png" target="_blank" rel="noopener"><img src="img/transformers.png" width="2595" height="969" loading="lazy" alt="Full LIBERO, VLABench, and RoboTwin 2.0 results for Transformer-based policies and their Eq.Bot variants" /></a>
             <figcaption><strong>Transformer-based policies.</strong> LIBERO and RoboTwin 2.0 report success rates. <span id="vlabench">VLABench reports intention (IS) and progress (PS) scores.</span> <span id="robotwin">RoboTwin 2.0 reports Clean and Randomized settings separately.</span></figcaption>
           </figure>
+          <div class="result-analysis">
+            <p><strong>LIBERO.</strong> Both variants improve OpenVLA-OFT across all four suites, raising mean success from 96.5% to 97.5% with OptNet and 97.7% with DirNet. The largest gains occur on Spatial, where success reaches 97.9% and 98.1%, respectively.</p>
+            <p><strong>VLABench.</strong> OptNet and DirNet improve intention and progress scores over π<sub>0.5</sub> on all five tracks. DirNet raises the mean scores from 61.0% and 42.4% to 67.1% and 46.1%. It also exceeds ACoT-VLA on in-distribution intention and progress and on Instruction intention, although ACoT-VLA remains stronger on Texture and Instruction progress.</p>
+            <p><strong>RoboTwin 2.0.</strong> Across 50 bimanual tasks, mean success rises from 87.55% with TurboVLA to 89.88% with OptNet and 90.96% with DirNet. Both variants gain more in the Randomized setting than in Clean, suggesting that canonicalization helps under environmental variation.</p>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="section tinted" id="rollouts" aria-labelledby="rollouts-title">
       <div class="wrap">
-        <header class="section-head">
-          <h2 id="rollouts-title">Real-world results and rollouts</h2>
-          <div class="rollouts-head">
-            <p>We evaluate Place Object, Pack Box, and Stack Blocks on a UR5e. Each policy runs 10 trials per task. Success requires completing the task without collisions with non-target objects; progress scores credit milestones reached during execution.</p>
-            <figure class="setup-note">
-              <img src="img/real_sence.jpg" width="608" height="456" loading="lazy" alt="UR5e arm and parallel gripper at the tabletop evaluation station" />
-              <figcaption><strong>Deployment setup.</strong> UR5e with a Robotiq 2F-85 gripper and external and wrist-mounted RGB cameras.</figcaption>
-            </figure>
+        <header class="section-head rollouts-head">
+          <div class="rollouts-copy">
+            <h2 id="rollouts-title">Real-world results and rollouts</h2>
+            <p>We evaluate three UR5e tasks with different geometric demands: <i>Place Object</i> tests relative spatial relationships, <i>Pack Box</i> tests target selection among multiple objects, and <i>Stack Blocks</i> requires precise alignment and stable placement.</p>
+            <p>OpenVLA-OFT and all three Eq.Bot variants use the same demonstrations and are evaluated over 10 trials per task. Full success requires reaching the goal without hitting non-target objects. Progress scores capture intermediate milestones, such as aligning the gripper, securing the object, and completing placement.</p>
           </div>
+          <figure class="setup-note">
+            <div class="setup-photo">
+              <img src="img/real_sence.jpg" width="608" height="456" loading="lazy" alt="UR5e arm and parallel gripper at the tabletop evaluation station" />
+            </div>
+            <figcaption><strong>Deployment setup.</strong> The UR5e uses a Robotiq 2F-85 parallel gripper. Fixed external and wrist-mounted RGB cameras provide two views of the tabletop.</figcaption>
+          </figure>
         </header>
+        <figure class="figure result-figure rollout-results">
+          <a href="img/image-5.png" target="_blank" rel="noopener"><img src="img/image-5.png" width="2433" height="711" loading="lazy" alt="Task sequences and bar charts comparing success rates and progress scores for the three UR5e tasks" /></a>
+          <figcaption>Left: example task sequences. Center: collision-free success. Right: progress scores. Parentheses show relative gains over OpenVLA-OFT.</figcaption>
+        </figure>
         <div class="scroll-table" tabindex="0" role="region" aria-label="Real-world aggregate metrics">
           <table>
             <caption>Mean across the three tasks (%)</caption>
@@ -234,14 +262,13 @@
             </tbody>
           </table>
         </div>
-        <figure class="figure">
-          <img src="img/image-5.png" width="2433" height="711" loading="lazy" alt="Task sequences and bar charts comparing success rates and progress scores for the three UR5e tasks" />
-          <figcaption>Left: example task sequences. Center: collision-free success. Right: progress scores. Parentheses show relative gains over OpenVLA-OFT.</figcaption>
-        </figure>
+        <div class="result-analysis">
+          <p>All three variants improve both metrics on every task. DirNet raises mean collision-free success from 63.3% to 83.3% and mean progress from 78.7% to 93.2%. On <i>Stack Blocks</i>, where reliable placement requires the most precise alignment, OptNet-Res50 and DirNet both raise collision-free success from 50.0% to 70.0%, while progress increases from 70.0% to 86.0% and 87.0%, respectively.</p>
+        </div>
         <div class="subsection">
           <header class="section-head">
             <h3>Browse all evaluation trials</h3>
-            <p>Compare four policies side by side across three tasks and ten trials per task. The 120 recordings include successful and unsuccessful runs and loop muted when in view.</p>
+            <p>Select a task and trial number to compare OpenVLA-OFT, OptNet-CNN, OptNet-Res50, and DirNet at the same trial index. All 120 recordings are available, including successful and unsuccessful runs, so individual outcomes can be viewed alongside the aggregate scores. The videos loop muted when in view.</p>
           </header>
           <div class="trial-browser" id="trial-browser" data-video-base="videos/all">
             <div class="trial-controls">
