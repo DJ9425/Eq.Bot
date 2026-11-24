@@ -17,7 +17,7 @@
       --line: #d3e2de;
       --white: #fff;
       --width: 73rem;
-      --section-columns: minmax(0, 1fr) minmax(0, 1.16fr);
+      --section-columns: minmax(0, 1fr) minmax(0, 26rem);
       --column-gap: clamp(1.25rem, 3vw, 2.5rem);
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       font-synthesis: none;
@@ -49,25 +49,23 @@
     .project-heading { max-width: 64rem; margin-inline: auto; text-align: center; }
     .project-heading .kicker { max-width: none; }
     .project-heading h1 { overflow-wrap: break-word; }
-    .hero-grid, .section-head--split, .rollouts-head { display: grid; grid-template-columns: var(--section-columns); column-gap: var(--column-gap); align-items: start; }
-    .hero-grid { row-gap: .85rem; margin-top: clamp(1.35rem, 3vw, 2.4rem); padding-top: clamp(1.1rem, 2.5vw, 1.65rem); border-top: 1px solid var(--line); }
+    .hero-grid, .rollouts-head { display: grid; grid-template-columns: var(--section-columns); column-gap: var(--column-gap); }
+    .hero-grid { align-items: stretch; row-gap: .85rem; margin-top: clamp(1.35rem, 3vw, 2.4rem); padding-top: clamp(1.1rem, 2.5vw, 1.65rem); border-top: 1px solid var(--line); }
     .kicker { display: block; margin-bottom: .7rem; color: var(--teal-dark); font-weight: 780; font-size: .87rem; text-transform: uppercase; letter-spacing: .095em; }
     .overview-title { grid-column: 1 / -1; }
-    .overview-copy p { color: var(--muted); }
-    .overview-copy p + p { margin-top: .65rem; }
-    .hero-figure { overflow: hidden; border-radius: .75rem; border: 1px solid var(--line); background: #fff; box-shadow: 0 9px 25px #21443d12; }
+    .overview-copy { display: flex; flex-direction: column; justify-content: space-between; gap: .75rem; }
+    .overview-copy p { max-width: none; color: var(--muted); }
+    .overview-copy, .section-head > p, .rollouts-head > p, .method-note p { text-align: justify; hyphens: auto; }
+    .hero-figure { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; border-radius: .75rem; border: 1px solid var(--line); background: #fff; box-shadow: 0 9px 25px #21443d12; }
     .hero-figure img { padding: .45rem; }
-    .hero-figure figcaption { padding: .75rem 1rem; font-size: .92rem; color: var(--muted); }
+    .hero-figure figcaption { padding: .5rem .75rem; font-size: .92rem; color: var(--muted); }
     .submission-status { max-width: none; margin-top: .8rem; color: var(--muted); font-size: 1rem; font-weight: 680; }
     .section { padding-block: clamp(2rem, 4.5vw, 3.7rem); border-bottom: 1px solid var(--line); scroll-margin-top: .8rem; }
     .tinted { background: var(--paper); }
     .section-head { margin-bottom: 1.45rem; }
-    .section-head p { margin-top: .65rem; color: var(--muted); }
-    .section-head--split { row-gap: .6rem; }
-    .section-head--split > p { max-width: none; margin-top: .2rem; }
-    .section-head--split > h3 { margin-bottom: 0; }
-    .rollouts-head { row-gap: 1rem; margin-bottom: 1.4rem; }
-    .rollouts-head .section-head { margin-bottom: 0; }
+    .section-head > p { max-width: none; margin-top: .65rem; color: var(--muted); }
+    .rollouts-head { row-gap: .8rem; align-items: start; margin-top: .65rem; }
+    .rollouts-head > p { max-width: none; color: var(--muted); }
     .figure { margin-top: 1.35rem; overflow: hidden; border: 1px solid var(--line); border-radius: .8rem; background: white; }
     .figure img { padding: .5rem; }
     .figure figcaption { padding: .7rem 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .93rem; }
@@ -93,7 +91,6 @@
     .result-figure a { display: block; }
     .result-figure a:focus-visible { outline-offset: -4px; }
     .result-figure + .result-figure { margin-top: 1rem; }
-    .latency-figure { margin-top: 0; }
     .subsection { margin-top: 1.7rem; }
     .subsection > h3 { margin-bottom: .75rem; }
     .trial-browser { margin-top: .85rem; padding: 1rem; border: 1px solid var(--line); border-radius: .7rem; background: #fff; }
@@ -112,9 +109,9 @@
     .setup-note figcaption strong { display: block; margin-bottom: .25rem; color: var(--ink); }
     .site-footer { padding: 1.15rem 0; color: var(--muted); font-size: .93rem; }
     @media (max-width: 56rem) {
-      .hero-grid, .section-head--split, .rollouts-head { grid-template-columns: minmax(0, 1fr); }
-      .section-head--split > p { margin-top: 0; }
-      .hero-figure { width: min(100%, 39rem); margin-inline: auto; }
+      .hero-grid, .rollouts-head { grid-template-columns: minmax(0, 1fr); }
+      .overview-copy, .section-head > p, .rollouts-head > p, .method-note p { text-align: start; }
+      .hero-figure { width: min(100%, 32rem); margin-inline: auto; }
       .setup-note { max-width: 33rem; }
       .video-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
     }
@@ -155,12 +152,13 @@
         <div class="hero-grid" id="abstract">
           <h2 class="overview-title">Overview</h2>
           <div class="overview-copy">
-            <p>Recognizing the target object does not ensure that a robot’s action rotates with the scene. Eq.Bot uses a learned canonical frame to align the observation, run the base policy once, and recover the predicted action in the original coordinates.</p>
-            <p>The recovery map respects the policy’s native output, from pixel affordances to Cartesian motions and joint targets. Both geometric operations sit outside the policy network. Experiments on four simulation benchmarks and three physical tasks show gains across CNN- and Transformer-based policies.</p>
+            <p>Recognizing the target object does not ensure that a robot’s action rotates with the scene. This challenge spans policies that predict pixel affordances, Cartesian motions, and joint targets.</p>
+            <p>Eq.Bot aligns each observation to a learned canonical frame and runs the base policy once. It then uses the same frame to recover the predicted action in the original coordinates, respecting the policy’s native output representation.</p>
+            <p>Both mappings operate outside the policy network. Across four simulation benchmarks and three physical tasks, Eq.Bot improves manipulation performance for CNN- and Transformer-based policies.</p>
           </div>
           <figure class="hero-figure" id="visual-intro">
             <a href="img/visual_intr.png"><img src="img/visual_intr.png" width="2320" height="1436" alt="View the full-size figure comparing human mental alignment, direct policy prediction, and Eq.Bot on a rotated scene" /></a>
-            <figcaption>Geometric intuition: align the scene, predict in the canonical frame, and recover the action in the original coordinates.</figcaption>
+            <figcaption>Align, predict, and recover actions using a shared frame.</figcaption>
           </figure>
         </div>
       </div>
@@ -168,7 +166,7 @@
 
     <section class="section tinted" id="model-architecture" aria-labelledby="architecture-title">
       <div class="wrap">
-        <header class="section-head section-head--split">
+        <header class="section-head">
           <h2 id="architecture-title">Model Architecture</h2>
           <p>One learned frame connects the input and output transformations. The existing policy operates on a common view with its original language instruction.</p>
         </header>
@@ -193,9 +191,9 @@
 
     <section class="section" id="results" aria-labelledby="results-title">
       <div class="wrap">
-        <header class="section-head section-head--split">
+        <header class="section-head">
           <h2 id="results-title">Experimental Results</h2>
-          <p>We evaluate Eq.Bot on four simulation benchmarks with CNN- and Transformer-based policies, and measure inference latency on CLIPORT and OpenVLA-OFT. Select a figure to view it at full size.</p>
+          <p>We evaluate Eq.Bot on Ravens, LIBERO, VLABench, and RoboTwin 2.0 with CNN- and Transformer-based policies. The results cover task completion, generalization to unseen settings, and bimanual manipulation. Select a figure to view it at full size.</p>
         </header>
         <div class="subsection">
           <h3>Simulation Results</h3>
@@ -208,31 +206,21 @@
             <figcaption><strong>Transformer-based policies.</strong> LIBERO and RoboTwin 2.0 report success rates. <span id="vlabench">VLABench reports intention (IS) and progress (PS) scores.</span> <span id="robotwin">RoboTwin 2.0 reports Clean and Randomized settings separately.</span></figcaption>
           </figure>
         </div>
-        <div class="subsection" id="inference-cost">
-          <header class="section-head section-head--split">
-            <h3>Inference Latency</h3>
-            <p>Measured on a single NVIDIA V100. OptNet-CNN adds the least latency to both CLIPORT and OpenVLA-OFT.</p>
-          </header>
-          <figure class="figure result-figure latency-figure">
-            <a href="img/latency.png" target="_blank" rel="noopener"><img src="img/latency.png" width="1239" height="347" loading="lazy" alt="Latency and overhead for CLIPORT and OpenVLA-OFT with OptNet-CNN, OptNet-Res50, and DirNet" /></a>
-            <figcaption>Inference latency in milliseconds and percentage overhead relative to each base policy.</figcaption>
-          </figure>
-        </div>
       </div>
     </section>
 
     <section class="section tinted" id="rollouts" aria-labelledby="rollouts-title">
       <div class="wrap">
-        <div class="rollouts-head">
-          <header class="section-head">
-            <h2 id="rollouts-title">Real-world results and rollouts</h2>
+        <header class="section-head">
+          <h2 id="rollouts-title">Real-world results and rollouts</h2>
+          <div class="rollouts-head">
             <p>We evaluate Place Object, Pack Box, and Stack Blocks on a UR5e. Each policy runs 10 trials per task. Success requires completing the task without collisions with non-target objects; progress scores credit milestones reached during execution.</p>
-          </header>
-          <figure class="setup-note">
-            <img src="img/real_sence.jpg" width="608" height="456" loading="lazy" alt="UR5e arm and parallel gripper at the tabletop evaluation station" />
-            <figcaption><strong>Deployment setup.</strong> UR5e with a Robotiq 2F-85 gripper and external and wrist-mounted RGB cameras.</figcaption>
-          </figure>
-        </div>
+            <figure class="setup-note">
+              <img src="img/real_sence.jpg" width="608" height="456" loading="lazy" alt="UR5e arm and parallel gripper at the tabletop evaluation station" />
+              <figcaption><strong>Deployment setup.</strong> UR5e with a Robotiq 2F-85 gripper and external and wrist-mounted RGB cameras.</figcaption>
+            </figure>
+          </div>
+        </header>
         <div class="scroll-table" tabindex="0" role="region" aria-label="Real-world aggregate metrics">
           <table>
             <caption>Mean across the three tasks (%)</caption>
@@ -250,7 +238,7 @@
           <figcaption>Left: example task sequences. Center: collision-free success. Right: progress scores. Parentheses show relative gains over OpenVLA-OFT.</figcaption>
         </figure>
         <div class="subsection">
-          <header class="section-head section-head--split">
+          <header class="section-head">
             <h3>Browse all evaluation trials</h3>
             <p>Compare four policies side by side across three tasks and ten trials per task. The 120 recordings include successful and unsuccessful runs and loop muted when in view.</p>
           </header>
