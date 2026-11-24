@@ -50,13 +50,14 @@
     .project-heading .kicker { max-width: none; }
     .project-heading h1 { overflow-wrap: break-word; }
     .hero-grid, .rollouts-head { display: grid; grid-template-columns: var(--section-columns); column-gap: var(--column-gap); }
-    .hero-grid { align-items: stretch; row-gap: .85rem; margin-top: clamp(1.35rem, 3vw, 2.4rem); padding-top: clamp(1.1rem, 2.5vw, 1.65rem); border-top: 1px solid var(--line); }
+    .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 29rem); align-items: start; row-gap: .85rem; margin-top: clamp(1.35rem, 3vw, 2.4rem); padding-top: clamp(1.1rem, 2.5vw, 1.65rem); border-top: 1px solid var(--line); }
     .kicker { display: block; margin-bottom: .7rem; color: var(--teal-dark); font-weight: 780; font-size: .87rem; text-transform: uppercase; letter-spacing: .095em; }
     .overview-title { grid-column: 1 / -1; }
-    .overview-copy { display: flex; flex-direction: column; justify-content: space-between; gap: .75rem; }
+    .overview-copy { display: grid; gap: .75rem; }
     .overview-copy p { max-width: none; color: var(--muted); }
     .overview-copy, .section-head > p, .rollouts-copy > p, .method-note p, .result-analysis p { text-align: justify; hyphens: auto; }
-    .hero-figure { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; border-radius: .75rem; border: 1px solid var(--line); background: #fff; box-shadow: 0 9px 25px #21443d12; }
+    .hero-figure { overflow: hidden; border-radius: .75rem; border: 1px solid var(--line); background: #fff; box-shadow: 0 9px 25px #21443d12; }
+    .hero-figure a { display: block; }
     .hero-figure img { padding: .45rem; }
     .hero-figure figcaption { padding: .5rem .75rem; font-size: .92rem; color: var(--muted); }
     .submission-status { max-width: none; margin-top: .8rem; color: var(--muted); font-size: 1rem; font-weight: 680; }
@@ -111,12 +112,11 @@
     .setup-note figcaption { padding-inline: .2rem; margin-top: .45rem; color: var(--muted); font-size: .9rem; text-align: justify; hyphens: auto; }
     .setup-note figcaption strong { color: var(--ink); }
     @media (min-width: 56.001rem) {
-      @supports (grid-template-rows: subgrid) {
-        .setup-note { display: grid; grid-template-rows: subgrid; grid-column: 2; grid-row: 1 / span 2; align-self: stretch; }
-        .setup-photo { position: relative; min-height: 0; }
-        .setup-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
-        .setup-note figcaption { margin-top: 0; }
-      }
+      .rollouts-head { align-items: stretch; }
+      .setup-note { display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: .45rem; min-height: 0; margin-block: .45rem .3rem; }
+      .setup-photo { position: relative; min-height: 0; background: var(--soft); }
+      .setup-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+      .setup-note figcaption { margin-top: 0; }
     }
     .site-footer { padding: 1.15rem 0; color: var(--muted); font-size: .93rem; }
     @media (max-width: 56rem) {
@@ -268,7 +268,7 @@
         <div class="subsection">
           <header class="section-head">
             <h3>Browse all evaluation trials</h3>
-            <p>Select a task and trial number to compare OpenVLA-OFT, OptNet-CNN, OptNet-Res50, and DirNet at the same trial index. All 120 recordings are available, including successful and unsuccessful runs, so individual outcomes can be viewed alongside the aggregate scores. The videos loop muted when in view.</p>
+            <p>Select a task and trial number to compare OpenVLA-OFT, OptNet-CNN, OptNet-Res50, and DirNet at the same trial index. All 120 recordings are available, including successful and unsuccessful runs, so individual outcomes can be viewed alongside the aggregate scores.</p>
           </header>
           <div class="trial-browser" id="trial-browser" data-video-base="videos/all">
             <div class="trial-controls">
