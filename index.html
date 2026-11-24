@@ -52,11 +52,6 @@
     .overview-copy h2 { margin-bottom: .65rem; font-size: clamp(1.6rem, 3vw, 2.35rem); }
     .overview-copy p { color: var(--muted); }
     .overview-copy p + p { margin-top: .65rem; }
-    .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .55rem; margin-top: 1rem; }
-    .action { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .55rem 1rem; border: 1px solid #a2bdb4; border-radius: .5rem; color: var(--teal-dark); background: #fff; font-weight: 720; text-decoration: none; transition: background .16s ease; }
-    .action:hover { background: var(--soft); }
-    .action.primary { background: var(--teal-dark); border-color: var(--teal-dark); color: #fff; }
-    .action.primary:hover { background: var(--teal); }
     .hero-figure { overflow: hidden; border-radius: .75rem; border: 1px solid var(--line); background: #fff; box-shadow: 0 9px 25px #21443d12; }
     .hero-figure img { padding: .45rem; }
     .hero-figure figcaption { padding: .75rem 1rem; font-size: .92rem; color: var(--muted); }
@@ -123,7 +118,6 @@
     @media (max-width: 23rem) { .video-grid { grid-template-columns: 1fr; } }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-      .action { transition: none; }
     }
   </style>
 </head>
@@ -148,9 +142,6 @@
           <h1 id="page-title">Eq.Bot: Model-Agnostic Canonicalization for Equivariant Robotic Manipulation</h1>
           <p class="submission-status">Anonymous submission</p>
         </header>
-        <div class="actions">
-          <a class="action primary" href="#rollouts">Watch robot rollouts</a>
-        </div>
         <div class="hero-grid" id="abstract">
           <div class="overview-copy">
             <h2>Overview</h2>
