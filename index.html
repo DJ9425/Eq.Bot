@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Eq.Bot couples learned observation canonicalization with action recovery for existing CNN- and Transformer-based robot policies." />
+  <title>Eq.Bot: Model-Agnostic Canonicalization for Equivariant Robotic Manipulation</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #142b32;
+      --muted: #415860;
+      --teal: #08655c;
+      --teal-dark: #064c46;
+      --soft: #e8f4f0;
+      --paper: #f5f9f8;
+      --line: #d3e2de;
+      --white: #fff;
+      --width: 73rem;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-synthesis: none;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--white); line-height: 1.6; }
+    a { color: var(--teal-dark); text-underline-offset: .22em; }
+    a:hover { color: var(--teal); }
+    :focus-visible { outline: 3px solid #ad5b20; outline-offset: 4px; }
+    h1, h2, h3, p, figure { margin: 0; }
+    h1, h2, h3 { line-height: 1.15; }
+    h1 { font-size: clamp(2.35rem, 5vw, 4.4rem); letter-spacing: -.065em; }
+    h2 { font-size: clamp(1.9rem, 3.8vw, 3rem); letter-spacing: -.05em; }
+    h3 { font-size: 1.25rem; letter-spacing: -.025em; }
+    p { max-width: 72ch; }
+    img { display: block; width: 100%; height: auto; }
+    button, summary { font: inherit; }
+    .wrap { width: min(var(--width), calc(100% - 3rem)); margin-inline: auto; }
+    .skip { position: absolute; z-index: 5; top: .5rem; left: .5rem; padding: .5rem .8rem; background: white; transform: translateY(-150%); }
+    .skip:focus { transform: none; }
+    .site-header { border-bottom: 1px solid var(--line); }
+    .site-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: .75rem 2rem; padding-block: .8rem; flex-wrap: wrap; }
+    .brand { font-size: 1.23rem; font-weight: 800; letter-spacing: -.05em; text-decoration: none; color: var(--ink); }
+    nav { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem 1.2rem; }
+    nav a { color: var(--muted); font-size: .94rem; font-weight: 650; text-decoration: none; padding-block: .25rem; }
+    nav a:hover { text-decoration: underline; }
+    .hero { background: linear-gradient(135deg, #f0f8f5 0%, #f9fbfa 67%, #e9f3ef 100%); padding: clamp(2.3rem, 6vw, 5rem) 0 clamp(1.4rem, 4vw, 2.8rem); }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.33fr) minmax(0, 1fr); gap: clamp(1.6rem, 5vw, 4.8rem); align-items: center; }
+    .kicker { display: block; margin-bottom: .7rem; color: var(--teal-dark); font-weight: 780; font-size: .87rem; text-transform: uppercase; letter-spacing: .095em; }
+    .hero-lead { margin-top: 1.1rem; font-size: clamp(1.08rem, 2vw, 1.28rem); color: var(--muted); max-width: 51ch; }
+    .actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.5rem; }
+    .action { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .55rem 1rem; border: 1px solid #a2bdb4; border-radius: .5rem; color: var(--teal-dark); background: #fff; font-weight: 720; text-decoration: none; transition: background .16s ease; }
+    .action:hover { background: var(--soft); }
+    .action.primary { background: var(--teal-dark); border-color: var(--teal-dark); color: #fff; }
+    .action.primary:hover { background: var(--teal); }
+    .hero-figure { overflow: hidden; border-radius: 1.05rem; border: 1px solid var(--line); background: #fff; box-shadow: 0 18px 42px #21443d16; }
+    .hero-figure img { padding: .45rem; }
+    .hero-figure figcaption { padding: .75rem 1rem; font-size: .92rem; color: var(--muted); }
+    .people { margin-top: clamp(1.7rem, 4vw, 2.8rem); }
+    .authors { max-width: none; display: flex; flex-wrap: wrap; gap: .25rem 1rem; font-weight: 700; }
+    .affiliations { max-width: none; margin-top: .5rem; color: var(--muted); font-size: .92rem; }
+    .affiliations span { display: inline-block; margin-right: 1rem; }
+    .section { padding-block: clamp(2.5rem, 6vw, 5rem); border-bottom: 1px solid var(--line); scroll-margin-top: .8rem; }
+    .tinted { background: var(--paper); }
+    .section-head { margin-bottom: 1.45rem; }
+    .section-head p { margin-top: .65rem; color: var(--muted); }
+    .intro-copy p + p { margin-top: .9rem; }
+    .figure { margin-top: 1.35rem; overflow: hidden; border: 1px solid var(--line); border-radius: .8rem; background: white; }
+    .figure img { padding: .5rem; }
+    .figure figcaption { padding: .7rem 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .93rem; }
+    .stages { list-style: none; padding: 0; margin: 1.35rem 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
+    .stages li { padding: 1rem 1.08rem; background: white; border: 1px solid var(--line); border-top: 3px solid var(--teal); border-radius: .55rem; }
+    .stages p, .variants p { margin-top: .45rem; color: var(--muted); }
+    .variants { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; margin-top: 1.2rem; }
+    .variants article { background: #fff; border: 1px solid var(--line); border-radius: .55rem; padding: 1rem 1.08rem; }
+    .variants article:first-child h3 { color: var(--teal-dark); }
+    .variants article:last-child h3 { color: #81530e; }
+    .note { margin-top: 1.15rem; color: var(--muted); font-size: .94rem; }
+    .method-note { background: #e9f4f0; border-left: 3px solid var(--teal); padding: .8rem 1rem; border-radius: .2rem .5rem .5rem .2rem; }
+    .method-note p { max-width: none; }
+    .scroll-table { width: 100%; overflow-x: auto; background: white; border: 1px solid var(--line); border-radius: .7rem; }
+    table { width: 100%; min-width: 38rem; border-collapse: collapse; font-size: .94rem; }
+    caption { text-align: left; color: var(--muted); font-weight: 680; padding: .76rem .9rem; background: white; }
+    th, td { padding: .58rem .88rem; border-top: 1px solid var(--line); text-align: left; }
+    thead th { background: var(--soft); }
+    tbody th { font-weight: 720; }
+    tbody tr:nth-child(even) { background: #f7faf9; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .best { color: var(--teal-dark); font-weight: 810; }
+    .runner-up { text-decoration: underline; text-underline-offset: .18em; }
+    .result-legend { margin-bottom: .85rem; color: var(--muted); font-size: .94rem; }
+    .benchmark { margin-top: .75rem; border: 1px solid var(--line); border-radius: .7rem; background: #fff; }
+    .benchmark > summary { padding: .75rem 1rem; color: var(--ink); font-weight: 780; cursor: pointer; }
+    .benchmark[open] > summary { border-bottom: 1px solid var(--line); background: var(--soft); border-radius: .7rem .7rem 0 0; }
+    .benchmark-meta { display: inline-block; margin-left: .65rem; color: var(--muted); font-size: .86rem; font-weight: 580; }
+    .benchmark-body { padding: 1rem; }
+    .benchmark-body p { margin-bottom: .9rem; color: var(--muted); }
+    .benchmark-budget { margin-top: .65rem; }
+    .benchmark-budget summary { padding: .35rem 0; font-weight: 700; cursor: pointer; }
+    .benchmark-budget .scroll-table { margin-top: .45rem; }
+    .subsection { margin-top: 1.7rem; }
+    .subsection h3 { margin-bottom: .75rem; }
+    .trial-browser { margin-top: .85rem; padding: 1rem; border: 1px solid var(--line); border-radius: .7rem; background: #fff; }
+    .trial-controls { display: flex; flex-wrap: wrap; gap: .8rem 1rem; margin-bottom: .8rem; }
+    .trial-controls label { display: grid; gap: .25rem; font-size: .94rem; font-weight: 720; }
+    .trial-controls select { min-height: 2.65rem; padding: .45rem .65rem; border: 1px solid #a2bdb4; border-radius: .4rem; background: #fff; color: var(--ink); font: inherit; }
+    .trial-description { margin-bottom: .8rem; color: var(--muted); max-width: none; }
+    .video-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: .7rem; }
+    .clip { overflow: hidden; border: 1px solid var(--line); background: #f7faf9; border-radius: .45rem; }
+    .clip video { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #13252a; }
+    .clip figcaption { padding: .48rem .65rem; color: var(--ink); font-weight: 650; font-size: .87rem; }
+    .clip figcaption a { display: inline-block; margin-left: .35rem; font-weight: 500; }
+    .setup-note { display: grid; grid-template-columns: minmax(0, 17rem) minmax(0,1fr); gap: 1rem; align-items: center; margin-top: 1.6rem; }
+    .setup-note img { border: 1px solid var(--line); border-radius: .5rem; }
+    .setup-note figcaption { color: var(--muted); font-size: .93rem; }
+    pre { overflow-x: auto; margin: 1rem 0 0; padding: 1rem; border-radius: .6rem; border: 1px solid var(--line); background: var(--paper); font-size: .92rem; line-height: 1.55; }
+    .site-footer { padding: 1.15rem 0; color: var(--muted); font-size: .93rem; }
+    @media (max-width: 56rem) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-figure { max-width: 39rem; }
+      .video-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width: 37rem) {
+      .wrap { width: calc(100% - 1.5rem); }
+      nav { gap: .15rem .85rem; }
+      .stages, .variants { grid-template-columns: 1fr; gap: .65rem; }
+      .trial-browser { padding: .65rem; }
+      .benchmark-body { padding: .65rem; }
+      .setup-note { grid-template-columns: 1fr; }
+      .setup-note img { max-width: 17rem; }
+    }
+    @media (max-width: 23rem) { .video-grid { grid-template-columns: 1fr; } }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .action { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header" id="top">
+    <div class="wrap">
+      <a class="brand" href="#top">Eq.Bot</a>
+      <nav aria-label="Project sections">
+        <a href="#abstract">Abstract</a>
+        <a href="#overview">Method</a>
+        <a href="#results">Results</a>
+        <a href="#rollouts">Rollouts</a>
+        <a href="#citation">Citation</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div>
+            <p class="kicker">Robot learning · Geometric equivariance</p>
+            <h1 id="page-title">Eq.Bot: Model-Agnostic Canonicalization for Equivariant Robotic Manipulation</h1>
+            <p class="hero-lead">A shared geometric frame aligns observations and recovers actions across CNN- and Transformer-based policies, while preserving their architectures and native action representations.</p>
+            <div class="actions">
+              <a class="action primary" href="#rollouts">Watch robot rollouts</a>
+              <a class="action" href="https://arxiv.org/abs/2511.15194">Preprint (2025)</a>
+              <a class="action" href="https://github.com/CNU-Bot-Group/Eq_Bot/tree/main">Original code</a>
+            </div>
+          </div>
+          <figure class="hero-figure" id="visual-intro">
+            <a href="img/visual_intr.png"><img src="img/visual_intr.png" width="2320" height="1436" alt="View the full-size figure comparing human mental alignment, direct policy prediction, and Eq.Bot on a rotated scene" /></a>
+            <figcaption>Geometric intuition: align the scene, predict in the canonical frame, and recover the action in the original coordinates.</figcaption>
+          </figure>
+        </div>
+        <div class="people">
+          <p class="authors">
+            <span>Jian Deng<sup>1</sup></span>
+            <span>Yuandong Wang<sup>1†</sup></span>
+            <span>Yangfu Zhu<sup>1</sup></span>
+            <span>Tao Feng<sup>2</sup></span>
+            <span>Tianyu Wo<sup>3</sup></span>
+            <span>Zhenzhou Shao<sup>1†</sup></span>
+          </p>
+          <p class="affiliations">
+            <span><sup>1</sup> Beijing Key Laboratory of Light Industrial Robot and Safety Verification, Capital Normal University</span>
+            <span><sup>2</sup> Department of Computer Science and Technology, Tsinghua University</span>
+            <span><sup>3</sup> School of Software, Beihang University</span>
+            <span><sup>†</sup> Correspondence: <a href="mailto:wangyd@cnu.edu.cn">wangyd@cnu.edu.cn</a>, <a href="mailto:zshao@cnu.edu.cn">zshao@cnu.edu.cn</a></span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="abstract" aria-labelledby="abstract-title">
+      <div class="wrap">
+        <div class="intro-copy">
+          <header class="section-head">
+            <p class="kicker">Motivation</p>
+            <h2 id="abstract-title">Abstract</h2>
+          </header>
+          <p>Recognizing the target object does not ensure that a robot’s action rotates with the scene. Achieving geometric consistency across existing policies is further complicated by the variety of their outputs, from pixel affordances to Cartesian motions and joint targets.</p>
+          <p>Inspired by mental rotation in human spatial reasoning, Eq.Bot aligns each observation to a learned canonical frame. It evaluates the base policy once and reuses the same frame estimate to recover the predicted action in the original coordinates. The recovery map is specific to the policy’s output representation, while both geometric operations sit outside the policy network.</p>
+          <p>Experiments on four simulation benchmarks and three physical tasks show improvements across CNN- and Transformer-based policies. We also measure the additional latency of frame estimation and action recovery.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted" id="overview" aria-labelledby="method-title">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="kicker">Method</p>
+          <h2 id="method-title">How Eq.Bot works</h2>
+          <p>One learned frame connects the input and output transformations. The existing policy operates on a common view with its original language instruction.</p>
+        </header>
+        <figure class="figure">
+          <img src="img/overview.jpg" width="6554" height="2606" loading="lazy" alt="Eq.Bot pipeline with observation alignment, base-policy prediction and action recovery, including DirNet and OptNet frame scoring" />
+          <figcaption>Top: Eq.Bot reuses the same frame for observation alignment and action recovery. Bottom: DirNet and OptNet implement alternative frame estimators.</figcaption>
+        </figure>
+        <ol class="stages">
+          <li><h3>Align the observation</h3><p>Estimate a transform from the canonical frame to the original frame. Apply its inverse to the observation to obtain the canonical view.</p></li>
+          <li><h3>Predict in the canonical frame</h3><p>Run the base policy once on the selected view. Its architecture, language instruction, and action representation remain unchanged.</p></li>
+          <li><h3>Recover the original action</h3><p>Use the estimated frame to map pixel affordances, Cartesian actions, or joint targets back to the original coordinates.</p></li>
+        </ol>
+        <div class="variants">
+          <article><h3>DirNet</h3><p>Group-equivariant features give a score for each candidate orientation directly from the observation.</p></article>
+          <article><h3>OptNet</h3><p>A conventional encoder scores transformed views by cosine similarity to a learned reference vector.</p></article>
+        </div>
+        <div class="note method-note">
+          <p>The canonicalizer learns jointly with the trainable policy components under task supervision. The main experiments use planar quarter turns (C<sub>4</sub>). With the instruction held fixed, the composite policy is equivariant when frame estimates transform consistently and the observation and action mappings are compatible on the valid domain.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="results" aria-labelledby="results-title">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="kicker">Evaluation</p>
+          <h2 id="results-title">Simulation results</h2>
+          <p>The same interface supports spatial prediction in CLIPORT, direct action regression in OpenVLA-OFT, flow matching in π<sub>0.5</sub>, and bimanual joint targets in TurboVLA.</p>
+        </header>
+        <p class="result-legend">OptNet denotes the ResNet-50 variant. <strong class="best">Bold</strong> marks the best result; <span class="runner-up">underlining</span> marks the second best where indicated in the paper.</p>
+        <details class="benchmark" id="ravens">
+          <summary><span>Ravens</span><span class="benchmark-meta">18 task settings · 4 demonstration budgets</span></summary>
+          <div class="benchmark-body">
+            <p>Task completion scores are reported for seen and unseen settings at each demonstration budget. On <i>align-rope</i> with 100 demonstrations, OptNet and DirNet raise CLIPORT’s score from 62.4% to 92.6% and 93.6%, respectively.</p>
+            <details class="benchmark-budget">
+              <summary>1 demonstration per task</summary>
+            <div class="scroll-table" tabindex="0" role="region" aria-label="Ravens 1 demonstrations">
+              <table>
+                <caption>Task completion score (%) · 1 demonstration per task</caption>
+                <thead>
+                  <tr><th scope="col">Task setting</th><th scope="col" class="num">Transporter-only</th><th scope="col" class="num">CLIP-only</th><th scope="col" class="num">RN50-BERT</th><th scope="col" class="num">CLIPORT</th><th scope="col" class="num">Eq.Bot (OptNet)</th><th scope="col" class="num">Eq.Bot (DirNet)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">packing-box-pairs-seen-colors</th><td class="num">44.2</td><td class="num">38.6</td><td class="num">36.2</td><td class="num">46.1</td><td class="num"><span class="runner-up">53.9</span></td><td class="num"><strong class="best">54.3</strong></td></tr>
+                  <tr><th scope="row">packing-box-pairs-unseen-colors</th><td class="num">34.6</td><td class="num">33.0</td><td class="num">31.4</td><td class="num">38.1</td><td class="num"><strong class="best">47.1</strong></td><td class="num"><span class="runner-up">46.7</span></td></tr>
+                  <tr><th scope="row">packing-seen-google-objects-seq</th><td class="num">26.2</td><td class="num"><span class="runner-up">29.1</span></td><td class="num"><strong class="best">32.9</strong></td><td class="num">11.2</td><td class="num">15.8</td><td class="num">16.4</td></tr>
+                  <tr><th scope="row">packing-unseen-google-objects-seq</th><td class="num">19.9</td><td class="num"><strong class="best">37.1</strong></td><td class="num">29.3</td><td class="num">23.4</td><td class="num"><span class="runner-up">33.5</span></td><td class="num">32.1</td></tr>
+                  <tr><th scope="row">packing-seen-google-objects-group</th><td class="num"><strong class="best">60.0</strong></td><td class="num"><span class="runner-up">52.5</span></td><td class="num">46.4</td><td class="num">45.6</td><td class="num">49.3</td><td class="num">50.2</td></tr>
+                  <tr><th scope="row">packing-unseen-google-objects-group</th><td class="num">46.2</td><td class="num">43.4</td><td class="num">43.2</td><td class="num">47.9</td><td class="num"><span class="runner-up">50.1</span></td><td class="num"><strong class="best">51.3</strong></td></tr>
+                  <tr><th scope="row">stack-block-pyramid-seq-seen-colors</th><td class="num">4.5</td><td class="num">6.3</td><td class="num">5.3</td><td class="num">17.4</td><td class="num"><span class="runner-up">24.0</span></td><td class="num"><strong class="best">24.6</strong></td></tr>
+                  <tr><th scope="row">stack-block-pyramid-seq-unseen-colors</th><td class="num">3.0</td><td class="num">2.0</td><td class="num">6.2</td><td class="num">8.9</td><td class="num"><span class="runner-up">17.3</span></td><td class="num"><strong class="best">18.5</strong></td></tr>
+                  <tr><th scope="row">separating-piles-seen-colors</th><td class="num">42.7</td><td class="num">43.5</td><td class="num">31.8</td><td class="num">45.8</td><td class="num"><strong class="best">53.2</strong></td><td class="num"><span class="runner-up">52.8</span></td></tr>
+                  <tr><th scope="row">separating-piles-unseen-colors</th><td class="num">41.2</td><td class="num"><strong class="best">59.9</strong></td><td class="num">33.4</td><td class="num">42.3</td><td class="num">46.1</td><td class="num"><span class="runner-up">47.3</span></td></tr>
+                  <tr><th scope="row">towers-of-hanoi-seq-seen-colors</th><td class="num">25.4</td><td class="num">9.4</td><td class="num">28.0</td><td class="num">47.4</td><td class="num"><span class="runner-up">56.2</span></td><td class="num"><strong class="best">57.6</strong></td></tr>
+                  <tr><th scope="row">towers-of-hanoi-seq-unseen-colors</th><td class="num">24.3</td><td class="num">24.7</td><td class="num">17.4</td><td class="num"><span class="runner-up">43.3</span></td><td class="num">42.7</td><td class="num"><strong class="best">43.8</strong></td></tr>
+                  <tr><th scope="row">align-rope</th><td class="num">6.9</td><td class="num">13.4</td><td class="num">3.1</td><td class="num">15.9</td><td class="num"><span class="runner-up">23.5</span></td><td class="num"><strong class="best">24.1</strong></td></tr>
+                  <tr><th scope="row">packing-unseen-shapes</th><td class="num">16.0</td><td class="num">13.0</td><td class="num">19.0</td><td class="num">22.0</td><td class="num"><strong class="best">25.0</strong></td><td class="num"><span class="runner-up">24.0</span></td></tr>
+                  <tr><th scope="row">assembling-kits-seq-seen-colors</th><td class="num">5.8</td><td class="num">0.8</td><td class="num">2.2</td><td class="num">9.8</td><td class="num"><strong class="best">13.6</strong></td><td class="num"><span class="runner-up">13.2</span></td></tr>
+                  <tr><th scope="row">assembling-kits-seq-unseen-colors</th><td class="num">7.8</td><td class="num">2.0</td><td class="num">1.6</td><td class="num">12.6</td><td class="num"><strong class="best">18.2</strong></td><td class="num"><span class="runner-up">17.8</span></td></tr>
+                  <tr><th scope="row">put-blocks-in-bowls-seen-colors</th><td class="num">16.8</td><td class="num">23.5</td><td class="num">13.8</td><td class="num">20.4</td><td class="num"><span class="runner-up">31.5</span></td><td class="num"><strong class="best">32.7</strong></td></tr>
+                  <tr><th scope="row">put-blocks-in-bowls-unseen-colors</th><td class="num">11.7</td><td class="num">11.2</td><td class="num">16.2</td><td class="num">16.0</td><td class="num"><span class="runner-up">19.5</span></td><td class="num"><strong class="best">20.3</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+            </details>
+            <details class="benchmark-budget">
+              <summary>10 demonstrations per task</summary>
+            <div class="scroll-table" tabindex="0" role="region" aria-label="Ravens 10 demonstrations">
+              <table>
+                <caption>Task completion score (%) · 10 demonstrations per task</caption>
+                <thead>
+                  <tr><th scope="col">Task setting</th><th scope="col" class="num">Transporter-only</th><th scope="col" class="num">CLIP-only</th><th scope="col" class="num">RN50-BERT</th><th scope="col" class="num">CLIPORT</th><th scope="col" class="num">Eq.Bot (OptNet)</th><th scope="col" class="num">Eq.Bot (DirNet)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">packing-box-pairs-seen-colors</th><td class="num">55.2</td><td class="num">69.7</td><td class="num">64.0</td><td class="num">71.2</td><td class="num"><span class="runner-up">75.1</span></td><td class="num"><strong class="best">76.5</strong></td></tr>
+                  <tr><th scope="row">packing-box-pairs-unseen-colors</th><td class="num">48.7</td><td class="num">65.5</td><td class="num">52.7</td><td class="num">54.7</td><td class="num"><span class="runner-up">69.0</span></td><td class="num"><strong class="best">71.8</strong></td></tr>
+                  <tr><th scope="row">packing-seen-google-objects-seq</th><td class="num">39.7</td><td class="num"><strong class="best">67.9</strong></td><td class="num">48.4</td><td class="num">51.0</td><td class="num">57.5</td><td class="num"><span class="runner-up">58.2</span></td></tr>
+                  <tr><th scope="row">packing-unseen-google-objects-seq</th><td class="num">29.8</td><td class="num"><strong class="best">49.4</strong></td><td class="num"><span class="runner-up">48.5</span></td><td class="num">44.3</td><td class="num">45.9</td><td class="num">47.3</td></tr>
+                  <tr><th scope="row">packing-seen-google-objects-group</th><td class="num">54.3</td><td class="num">62.0</td><td class="num">52.9</td><td class="num">60.7</td><td class="num"><span class="runner-up">65.2</span></td><td class="num"><strong class="best">67.1</strong></td></tr>
+                  <tr><th scope="row">packing-unseen-google-objects-group</th><td class="num">54.7</td><td class="num"><strong class="best">65.9</strong></td><td class="num">52.0</td><td class="num">57.3</td><td class="num">59.8</td><td class="num"><span class="runner-up">60.3</span></td></tr>
+                  <tr><th scope="row">stack-block-pyramid-seq-seen-colors</th><td class="num">2.3</td><td class="num">28.7</td><td class="num">35.0</td><td class="num">44.7</td><td class="num"><span class="runner-up">53.7</span></td><td class="num"><strong class="best">54.2</strong></td></tr>
+                  <tr><th scope="row">stack-block-pyramid-seq-unseen-colors</th><td class="num">4.0</td><td class="num">12.2</td><td class="num">12.2</td><td class="num">21.7</td><td class="num"><strong class="best">30.5</strong></td><td class="num"><span class="runner-up">28.5</span></td></tr>
+                  <tr><th scope="row">separating-piles-seen-colors</th><td class="num">52.3</td><td class="num">55.0</td><td class="num">47.8</td><td class="num">53.5</td><td class="num"><span class="runner-up">60.9</span></td><td class="num"><strong class="best">61.5</strong></td></tr>
+                  <tr><th scope="row">separating-piles-unseen-colors</th><td class="num">49.2</td><td class="num">49.6</td><td class="num">44.4</td><td class="num">49.2</td><td class="num"><span class="runner-up">58.2</span></td><td class="num"><strong class="best">58.9</strong></td></tr>
+                  <tr><th scope="row">towers-of-hanoi-seq-seen-colors</th><td class="num">67.9</td><td class="num">52.6</td><td class="num">66.1</td><td class="num">74.9</td><td class="num"><strong class="best">86.0</strong></td><td class="num"><span class="runner-up">85.3</span></td></tr>
+                  <tr><th scope="row">towers-of-hanoi-seq-unseen-colors</th><td class="num">44.6</td><td class="num">47.0</td><td class="num">75.1</td><td class="num"><span class="runner-up">84.6</span></td><td class="num"><strong class="best">84.7</strong></td><td class="num">83.2</td></tr>
+                  <tr><th scope="row">align-rope</th><td class="num">30.6</td><td class="num">48.7</td><td class="num">25.0</td><td class="num">48.6</td><td class="num"><span class="runner-up">62.6</span></td><td class="num"><strong class="best">64.9</strong></td></tr>
+                  <tr><th scope="row">packing-unseen-shapes</th><td class="num">20.0</td><td class="num">28.0</td><td class="num">25.0</td><td class="num">28.0</td><td class="num"><span class="runner-up">38.0</span></td><td class="num"><strong class="best">44.0</strong></td></tr>
+                  <tr><th scope="row">assembling-kits-seq-seen-colors</th><td class="num">11.6</td><td class="num">9.2</td><td class="num">5.6</td><td class="num">14.2</td><td class="num"><span class="runner-up">18.3</span></td><td class="num"><strong class="best">19.4</strong></td></tr>
+                  <tr><th scope="row">assembling-kits-seq-unseen-colors</th><td class="num">17.6</td><td class="num">4.6</td><td class="num">6.4</td><td class="num">17.4</td><td class="num"><span class="runner-up">21.6</span></td><td class="num"><strong class="best">22.4</strong></td></tr>
+                  <tr><th scope="row">put-blocks-in-bowls-seen-colors</th><td class="num">33.3</td><td class="num"><strong class="best">60.2</strong></td><td class="num">44.5</td><td class="num">38.3</td><td class="num">52.7</td><td class="num"><span class="runner-up">53.2</span></td></tr>
+                  <tr><th scope="row">put-blocks-in-bowls-unseen-colors</th><td class="num">17.2</td><td class="num"><strong class="best">34.2</strong></td><td class="num">23.0</td><td class="num">29.0</td><td class="num"><span class="runner-up">32.7</span></td><td class="num">32.5</td></tr>
+                </tbody>
+              </table>
+            </div>
+            </details>
+            <details class="benchmark-budget" open="open">
+              <summary>100 demonstrations per task</summary>
+            <div class="scroll-table" tabindex="0" role="region" aria-label="Ravens 100 demonstrations">
+              <table>
+                <caption>Task completion score (%) · 100 demonstrations per task</caption>
+                <thead>
+                  <tr><th scope="col">Task setting</th><th scope="col" class="num">Transporter-only</th><th scope="col" class="num">CLIP-only</th><th scope="col" class="num">RN50-BERT</th><th scope="col" class="num">CLIPORT</th><th scope="col" class="num">Eq.Bot (OptNet)</th><th scope="col" class="num">Eq.Bot (DirNet)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">packing-box-pairs-seen-colors</th><td class="num">54.2</td><td class="num">88.5</td><td class="num"><span class="runner-up">94.7</span></td><td class="num">88.5</td><td class="num">94.5</td><td class="num"><strong class="best">95.2</strong></td></tr>
+                  <tr><th scope="row">packing-box-pairs-unseen-colors</th><td class="num">47.2</td><td class="num">68.8</td><td class="num">65.6</td><td class="num">64.5</td><td class="num"><span class="runner-up">74.7</span></td><td class="num"><strong class="best">78.1</strong></td></tr>
+                  <tr><th scope="row">packing-seen-google-objects-seq</th><td class="num">45.4</td><td class="num"><span class="runner-up">89.3</span></td><td class="num">87.9</td><td class="num">80.3</td><td class="num">89.2</td><td class="num"><strong class="best">89.4</strong></td></tr>
+                  <tr><th scope="row">packing-unseen-google-objects-seq</th><td class="num">28.7</td><td class="num">60.4</td><td class="num">48.3</td><td class="num">59.6</td><td class="num"><span class="runner-up">62.9</span></td><td class="num"><strong class="best">63.3</strong></td></tr>
+                  <tr><th scope="row">packing-seen-google-objects-group</th><td class="num">61.5</td><td class="num"><span class="runner-up">89.6</span></td><td class="num">76.5</td><td class="num">81.2</td><td class="num">88.2</td><td class="num"><strong class="best">90.1</strong></td></tr>
+                  <tr><th scope="row">packing-unseen-google-objects-group</th><td class="num">49.8</td><td class="num">73.1</td><td class="num">66.3</td><td class="num">72.0</td><td class="num"><span class="runner-up">80.6</span></td><td class="num"><strong class="best">80.9</strong></td></tr>
+                  <tr><th scope="row">stack-block-pyramid-seq-seen-colors</th><td class="num">5.2</td><td class="num">55.7</td><td class="num">89.0</td><td class="num">87.9</td><td class="num"><span class="runner-up">94.2</span></td><td class="num"><strong class="best">95.0</strong></td></tr>
+                  <tr><th scope="row">stack-block-pyramid-seq-unseen-colors</th><td class="num">2.3</td><td class="num">18.3</td><td class="num">21.5</td><td class="num">29.5</td><td class="num"><span class="runner-up">33.0</span></td><td class="num"><strong class="best">34.0</strong></td></tr>
+                  <tr><th scope="row">separating-piles-seen-colors</th><td class="num">42.0</td><td class="num">84.9</td><td class="num">46.5</td><td class="num">86.0</td><td class="num"><strong class="best">94.1</strong></td><td class="num"><span class="runner-up">93.2</span></td></tr>
+                  <tr><th scope="row">separating-piles-unseen-colors</th><td class="num">44.7</td><td class="num">73.0</td><td class="num">41.3</td><td class="num">72.1</td><td class="num"><span class="runner-up">75.6</span></td><td class="num"><strong class="best">77.1</strong></td></tr>
+                  <tr><th scope="row">towers-of-hanoi-seq-seen-colors</th><td class="num"><span class="runner-up">98.0</span></td><td class="num">88.6</td><td class="num">91.3</td><td class="num">96.7</td><td class="num"><strong class="best">100</strong></td><td class="num"><strong class="best">100</strong></td></tr>
+                  <tr><th scope="row">towers-of-hanoi-seq-unseen-colors</th><td class="num">71.7</td><td class="num">67.0</td><td class="num">85.3</td><td class="num">94.0</td><td class="num"><strong class="best">99.9</strong></td><td class="num"><span class="runner-up">99.7</span></td></tr>
+                  <tr><th scope="row">align-rope</th><td class="num">33.1</td><td class="num">70.4</td><td class="num">63.8</td><td class="num">62.4</td><td class="num"><span class="runner-up">92.6</span></td><td class="num"><strong class="best">93.6</strong></td></tr>
+                  <tr><th scope="row">packing-unseen-shapes</th><td class="num">22.0</td><td class="num">44.0</td><td class="num">32.0</td><td class="num">32.0</td><td class="num"><span class="runner-up">50.0</span></td><td class="num"><strong class="best">51.0</strong></td></tr>
+                  <tr><th scope="row">assembling-kits-seq-seen-colors</th><td class="num">28.6</td><td class="num">19.8</td><td class="num">11.6</td><td class="num">36.8</td><td class="num"><span class="runner-up">48.2</span></td><td class="num"><strong class="best">51.6</strong></td></tr>
+                  <tr><th scope="row">assembling-kits-seq-unseen-colors</th><td class="num">25.6</td><td class="num">10.8</td><td class="num">10.4</td><td class="num"><strong class="best">33.6</strong></td><td class="num"><span class="runner-up">32.0</span></td><td class="num">31.0</td></tr>
+                  <tr><th scope="row">put-blocks-in-bowls-seen-colors</th><td class="num">62.7</td><td class="num">93.5</td><td class="num">81.2</td><td class="num">91.2</td><td class="num"><span class="runner-up">99.5</span></td><td class="num"><strong class="best">99.8</strong></td></tr>
+                  <tr><th scope="row">put-blocks-in-bowls-unseen-colors</th><td class="num">14.8</td><td class="num">33.2</td><td class="num">30.3</td><td class="num">37.1</td><td class="num"><strong class="best">59.8</strong></td><td class="num"><span class="runner-up">58.5</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            </details>
+            <details class="benchmark-budget">
+              <summary>1,000 demonstrations per task</summary>
+            <div class="scroll-table" tabindex="0" role="region" aria-label="Ravens 1000 demonstrations">
+              <table>
+                <caption>Task completion score (%) · 1,000 demonstrations per task</caption>
+                <thead>
+                  <tr><th scope="col">Task setting</th><th scope="col" class="num">Transporter-only</th><th scope="col" class="num">CLIP-only</th><th scope="col" class="num">RN50-BERT</th><th scope="col" class="num">CLIPORT</th><th scope="col" class="num">Eq.Bot (OptNet)</th><th scope="col" class="num">Eq.Bot (DirNet)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">packing-box-pairs-seen-colors</th><td class="num">52.4</td><td class="num">87.1</td><td class="num">90.3</td><td class="num">97.6</td><td class="num"><span class="runner-up">98.9</span></td><td class="num"><strong class="best">99.0</strong></td></tr>
+                  <tr><th scope="row">packing-box-pairs-unseen-colors</th><td class="num">54.1</td><td class="num">61.2</td><td class="num">72.1</td><td class="num">71.5</td><td class="num"><span class="runner-up">77.2</span></td><td class="num"><strong class="best">78.8</strong></td></tr>
+                  <tr><th scope="row">packing-seen-google-objects-seq</th><td class="num">46.3</td><td class="num"><span class="runner-up">95.8</span></td><td class="num">94.0</td><td class="num">93.2</td><td class="num"><strong class="best">97.3</strong></td><td class="num"><strong class="best">97.3</strong></td></tr>
+                  <tr><th scope="row">packing-unseen-google-objects-seq</th><td class="num">37.3</td><td class="num">57.8</td><td class="num">56.1</td><td class="num">61.6</td><td class="num"><span class="runner-up">73.2</span></td><td class="num"><strong class="best">73.5</strong></td></tr>
+                  <tr><th scope="row">packing-seen-google-objects-group</th><td class="num">59.9</td><td class="num">92.7</td><td class="num">86.4</td><td class="num">92.9</td><td class="num"><strong class="best">97.6</strong></td><td class="num"><span class="runner-up">97.5</span></td></tr>
+                  <tr><th scope="row">packing-unseen-google-objects-group</th><td class="num">52.0</td><td class="num">70.0</td><td class="num">73.7</td><td class="num">72.6</td><td class="num"><span class="runner-up">77.3</span></td><td class="num"><strong class="best">79.2</strong></td></tr>
+                  <tr><th scope="row">stack-block-pyramid-seq-seen-colors</th><td class="num">4.5</td><td class="num">54.8</td><td class="num">97.5</td><td class="num">96.8</td><td class="num"><strong class="best">99.5</strong></td><td class="num"><span class="runner-up">99.0</span></td></tr>
+                  <tr><th scope="row">stack-block-pyramid-seq-unseen-colors</th><td class="num">5.8</td><td class="num">19.5</td><td class="num"><span class="runner-up">30.7</span></td><td class="num">26.5</td><td class="num"><strong class="best">31.5</strong></td><td class="num">29.8</td></tr>
+                  <tr><th scope="row">separating-piles-seen-colors</th><td class="num">48.4</td><td class="num">90.2</td><td class="num">46.5</td><td class="num">96.5</td><td class="num"><span class="runner-up">98.1</span></td><td class="num"><strong class="best">98.3</strong></td></tr>
+                  <tr><th scope="row">separating-piles-unseen-colors</th><td class="num">52.3</td><td class="num">71.0</td><td class="num">44.9</td><td class="num">74.2</td><td class="num"><strong class="best">79.6</strong></td><td class="num"><span class="runner-up">79.3</span></td></tr>
+                  <tr><th scope="row">towers-of-hanoi-seq-seen-colors</th><td class="num"><span class="runner-up">99.9</span></td><td class="num">45.3</td><td class="num">92.1</td><td class="num">98.6</td><td class="num"><strong class="best">100</strong></td><td class="num"><strong class="best">100</strong></td></tr>
+                  <tr><th scope="row">towers-of-hanoi-seq-unseen-colors</th><td class="num">80.7</td><td class="num">58.0</td><td class="num">89.3</td><td class="num"><span class="runner-up">99.1</span></td><td class="num"><strong class="best">100</strong></td><td class="num"><strong class="best">100</strong></td></tr>
+                  <tr><th scope="row">align-rope</th><td class="num">51.5</td><td class="num">70.7</td><td class="num">57.1</td><td class="num">90.6</td><td class="num"><span class="runner-up">94.5</span></td><td class="num"><strong class="best">96.2</strong></td></tr>
+                  <tr><th scope="row">packing-unseen-shapes</th><td class="num">22.0</td><td class="num">50.0</td><td class="num">44.0</td><td class="num">38.0</td><td class="num"><span class="runner-up">54.0</span></td><td class="num"><strong class="best">55.0</strong></td></tr>
+                  <tr><th scope="row">assembling-kits-seq-seen-colors</th><td class="num">29.6</td><td class="num">23.0</td><td class="num">21.8</td><td class="num">53.2</td><td class="num"><span class="runner-up">53.6</span></td><td class="num"><strong class="best">54.8</strong></td></tr>
+                  <tr><th scope="row">assembling-kits-seq-unseen-colors</th><td class="num">28.4</td><td class="num">19.8</td><td class="num">18.4</td><td class="num"><span class="runner-up">31.0</span></td><td class="num">30.4</td><td class="num"><strong class="best">33.0</strong></td></tr>
+                  <tr><th scope="row">put-blocks-in-bowls-seen-colors</th><td class="num">64.7</td><td class="num"><span class="runner-up">97.7</span></td><td class="num">91.8</td><td class="num"><strong class="best">100</strong></td><td class="num"><strong class="best">100</strong></td><td class="num"><strong class="best">100</strong></td></tr>
+                  <tr><th scope="row">put-blocks-in-bowls-unseen-colors</th><td class="num">18.7</td><td class="num">44.5</td><td class="num">23.8</td><td class="num">18.5</td><td class="num"><strong class="best">52.3</strong></td><td class="num"><span class="runner-up">52.2</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            </details>
+          </div>
+        </details>
+        <details class="benchmark" id="libero" open="open">
+          <summary><span>LIBERO</span><span class="benchmark-meta">4 task suites</span></summary>
+          <div class="benchmark-body">
+            <p>Success rates cover spatial, object, goal, and long-horizon manipulation. Both Eq.Bot variants improve OpenVLA-OFT across all four suites, with the largest gain on Spatial.</p>
+            <div class="scroll-table" tabindex="0" role="region" aria-label="LIBERO suite results">
+              <table>
+                <caption>Success rate (%) by task suite</caption>
+                <thead>
+                  <tr><th scope="col">Method</th><th scope="col" class="num">Spatial</th><th scope="col" class="num">Object</th><th scope="col" class="num">Goal</th><th scope="col" class="num">Long</th><th scope="col" class="num">Avg.</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">SAVLA</th><td class="num">96.7</td><td class="num">92.9</td><td class="num">97.5</td><td class="num">79.3</td><td class="num">91.6</td></tr>
+                  <tr><th scope="row">π<sub>0</sub></th><td class="num">96.8</td><td class="num"><strong class="best">98.8</strong></td><td class="num">95.8</td><td class="num">85.2</td><td class="num">94.2</td></tr>
+                  <tr><th scope="row">OpenVLA-OFT</th><td class="num">96.6</td><td class="num">97.8</td><td class="num">97.6</td><td class="num">94.1</td><td class="num">96.5</td></tr>
+                  <tr><th scope="row">Eq.Bot (OptNet)</th><td class="num"><span class="runner-up">97.9</span></td><td class="num"><span class="runner-up">98.6</span></td><td class="num"><span class="runner-up">98.4</span></td><td class="num"><span class="runner-up">95.1</span></td><td class="num"><span class="runner-up">97.5</span></td></tr>
+                  <tr><th scope="row">Eq.Bot (DirNet)</th><td class="num"><strong class="best">98.1</strong></td><td class="num"><strong class="best">98.8</strong></td><td class="num"><strong class="best">98.5</strong></td><td class="num"><strong class="best">95.2</strong></td><td class="num"><strong class="best">97.7</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+        <details class="benchmark" id="vlabench">
+          <summary><span>VLABench</span><span class="benchmark-meta">5 evaluation tracks</span></summary>
+          <div class="benchmark-body">
+            <p>Intention score (IS) measures target-directed behavior; progress score (PS) measures task progress. Eq.Bot improves both metrics over π<sub>0.5</sub> across all five tracks. DirNet leads ACoT-VLA on in-distribution IS and PS and on Instruction IS, while ACoT-VLA remains stronger on Texture and average PS.</p>
+            <div class="scroll-table" tabindex="0" role="region" aria-label="VLABench generalization results">
+              <table>
+                <caption>Intention and progress scores (%)</caption>
+                <thead>
+                  <tr><th rowspan="2" scope="col">Method</th><th class="num" colspan="2" scope="colgroup">In-distribution</th><th class="num" colspan="2" scope="colgroup">Category</th><th class="num" colspan="2" scope="colgroup">Commonsense</th><th class="num" colspan="2" scope="colgroup">Instruction</th><th class="num" colspan="2" scope="colgroup">Texture</th><th class="num" colspan="2" scope="colgroup">Avg.</th></tr>
+                  <tr><th class="num" scope="col">IS</th><th class="num" scope="col">PS</th><th class="num" scope="col">IS</th><th class="num" scope="col">PS</th><th class="num" scope="col">IS</th><th class="num" scope="col">PS</th><th class="num" scope="col">IS</th><th class="num" scope="col">PS</th><th class="num" scope="col">IS</th><th class="num" scope="col">PS</th><th class="num" scope="col">IS</th><th class="num" scope="col">PS</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">π<sub>0</sub></th><td class="num">67.8</td><td class="num">62.7</td><td class="num">44.0</td><td class="num">33.6</td><td class="num">54.9</td><td class="num">43.0</td><td class="num">58.0</td><td class="num"><span class="runner-up">38.7</span></td><td class="num">50.6</td><td class="num">42.5</td><td class="num">55.1</td><td class="num">44.1</td></tr>
+                  <tr><th scope="row">ACoT-VLA</th><td class="num">79.8</td><td class="num">66.1</td><td class="num">54.1</td><td class="num"><strong class="best">38.9</strong></td><td class="num">52.3</td><td class="num">37.8</td><td class="num">56.8</td><td class="num"><strong class="best">39.6</strong></td><td class="num"><strong class="best">74.6</strong></td><td class="num"><strong class="best">54.6</strong></td><td class="num">63.5</td><td class="num"><strong class="best">47.4</strong></td></tr>
+                  <tr><th scope="row">π<sub>0.5</sub></th><td class="num">73.2</td><td class="num">59.6</td><td class="num">50.0</td><td class="num">32.9</td><td class="num">61.5</td><td class="num">43.3</td><td class="num">60.2</td><td class="num">27.2</td><td class="num">60.1</td><td class="num">48.9</td><td class="num">61.0</td><td class="num">42.4</td></tr>
+                  <tr><th scope="row">Eq.Bot (OptNet)</th><td class="num"><span class="runner-up">81.8</span></td><td class="num"><span class="runner-up">66.3</span></td><td class="num"><strong class="best">56.2</strong></td><td class="num"><span class="runner-up">37.4</span></td><td class="num"><span class="runner-up">66.7</span></td><td class="num"><span class="runner-up">44.1</span></td><td class="num"><span class="runner-up">65.8</span></td><td class="num">30.3</td><td class="num">61.4</td><td class="num">49.2</td><td class="num"><span class="runner-up">66.4</span></td><td class="num">45.5</td></tr>
+                  <tr><th scope="row">Eq.Bot (DirNet)</th><td class="num"><strong class="best">82.6</strong></td><td class="num"><strong class="best">67.1</strong></td><td class="num"><span class="runner-up">55.8</span></td><td class="num">36.2</td><td class="num"><strong class="best">67.6</strong></td><td class="num"><strong class="best">45.9</strong></td><td class="num"><strong class="best">67.6</strong></td><td class="num">31.8</td><td class="num"><span class="runner-up">61.9</span></td><td class="num"><span class="runner-up">49.4</span></td><td class="num"><strong class="best">67.1</strong></td><td class="num"><span class="runner-up">46.1</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+        <details class="benchmark" id="robotwin">
+          <summary><span>RoboTwin 2.0</span><span class="benchmark-meta">50 bimanual tasks · Clean and Randomized</span></summary>
+          <div class="benchmark-body">
+            <p>Both variants improve TurboVLA under Clean and Randomized conditions, with larger gains under randomization. Embodied pretraining refers to additional robot data beyond RoboTwin 2.0.</p>
+            <div class="scroll-table" tabindex="0" role="region" aria-label="RoboTwin 2.0 success rates">
+              <table>
+                <caption>Parameters (billions) and task success (%)</caption>
+                <thead>
+                  <tr><th scope="col">Method</th><th scope="col" class="num">Embodied PT</th><th scope="col" class="num">Params (B)</th><th scope="col" class="num">Clean</th><th scope="col" class="num">Randomized</th><th scope="col" class="num">Avg.</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">π<sub>0.5</sub></th><td class="num">Yes</td><td class="num">3.4</td><td class="num">82.74</td><td class="num">76.76</td><td class="num">79.75</td></tr>
+                  <tr><th scope="row">LingBot-VLA</th><td class="num">Yes</td><td class="num">4.2</td><td class="num">88.56</td><td class="num">86.68</td><td class="num">87.62</td></tr>
+                  <tr><th scope="row">X-VLA</th><td class="num">Yes</td><td class="num">0.9</td><td class="num">72.80</td><td class="num">72.84</td><td class="num">72.82</td></tr>
+                  <tr><th scope="row">TurboVLA</th><td class="num">No</td><td class="num"><strong class="best">0.4</strong></td><td class="num">87.52</td><td class="num">87.58</td><td class="num">87.55</td></tr>
+                  <tr><th scope="row">Eq.Bot (OptNet)</th><td class="num">No</td><td class="num"><strong class="best">0.4</strong></td><td class="num"><span class="runner-up">89.60</span></td><td class="num"><span class="runner-up">90.16</span></td><td class="num"><span class="runner-up">89.88</span></td></tr>
+                  <tr><th scope="row">Eq.Bot (DirNet)</th><td class="num">No</td><td class="num"><span class="runner-up">0.5</span></td><td class="num"><strong class="best">90.64</strong></td><td class="num"><strong class="best">91.28</strong></td><td class="num"><strong class="best">90.96</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+        <div class="subsection" id="inference-cost">
+          <h3>Inference cost</h3>
+          <div class="scroll-table" tabindex="0" role="region" aria-label="Inference latency and overhead">
+            <table>
+              <caption>Inference on a single NVIDIA V100. Overhead is relative to the corresponding base policy.</caption>
+              <colgroup span="1"></colgroup>
+              <colgroup span="2"></colgroup>
+              <colgroup span="2"></colgroup>
+              <thead>
+                <tr><th scope="col" rowspan="2">Method</th><th scope="colgroup" colspan="2" class="num">CLIPORT</th><th scope="colgroup" colspan="2" class="num">OpenVLA-OFT</th></tr>
+                <tr><th scope="col" class="num">Latency (ms)</th><th scope="col" class="num">Overhead</th><th scope="col" class="num">Latency (ms)</th><th scope="col" class="num">Overhead</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">Base policy</th><td class="num">81.99</td><td class="num">—</td><td class="num">110.81</td><td class="num">—</td></tr>
+                <tr><th scope="row">Eq.Bot (OptNet-CNN)</th><td class="num">87.77</td><td class="num">+7.05%</td><td class="num">113.24</td><td class="num">+2.19%</td></tr>
+                <tr><th scope="row">Eq.Bot (OptNet-Res50)</th><td class="num">91.26</td><td class="num">+11.31%</td><td class="num">116.12</td><td class="num">+4.79%</td></tr>
+                <tr><th scope="row">Eq.Bot (DirNet)</th><td class="num">178.36</td><td class="num">+117.54%</td><td class="num">135.66</td><td class="num">+22.43%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note">OptNet-CNN adds the least latency on both policies. OptNet-Res50 retains much of the performance gain with lower overhead than DirNet. The cost of canonicalization depends on both the canonicalizer and the base policy.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted" id="rollouts" aria-labelledby="rollouts-title">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="kicker">Physical experiments</p>
+          <h2 id="rollouts-title">Real-world results and rollouts</h2>
+          <p>We evaluate Place Object, Pack Box, and Stack Blocks on a UR5e with a parallel gripper. Each policy runs 10 trials per task. Success requires completing the task without collisions with non-target objects; progress scores credit milestones achieved during execution.</p>
+        </header>
+        <div class="scroll-table" tabindex="0" role="region" aria-label="Real-world aggregate metrics">
+          <table>
+            <caption>Mean across the three tasks (%)</caption>
+            <thead>
+              <tr><th scope="col">Metric</th><th scope="col" class="num">OpenVLA-OFT</th><th scope="col" class="num">OptNet-CNN</th><th scope="col" class="num">OptNet-Res50</th><th scope="col" class="num">DirNet</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Collision-free success</th><td class="num">63.3</td><td class="num">73.3</td><td class="num">76.7</td><td class="num best">83.3</td></tr>
+              <tr><th scope="row">Progress score</th><td class="num">78.7</td><td class="num">85.5</td><td class="num">92.7</td><td class="num best">93.2</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figure class="figure">
+          <img src="img/image-5.png" width="2433" height="711" loading="lazy" alt="Task sequences and bar charts comparing success rates and progress scores for the three UR5e tasks" />
+          <figcaption>Left: example task sequences. Center: collision-free success. Right: progress scores. Parentheses show relative gains over OpenVLA-OFT.</figcaption>
+        </figure>
+        <div class="subsection">
+          <h3>Browse all evaluation trials</h3>
+          <p>Browse all 120 recordings: three tasks, ten trials per task, and four policies. Choose a task and trial index to compare OpenVLA-OFT, OptNet-CNN, OptNet-Res50, and DirNet side by side. The videos include successful and unsuccessful trials and load on demand.</p>
+          <div class="trial-browser" id="trial-browser" data-video-base="videos/all">
+            <div class="trial-controls">
+              <label for="rollout-task">Task
+                <select id="rollout-task">
+                  <option value="place-object">Place Object</option>
+                  <option value="pack-box">Pack Box</option>
+                  <option value="stack-blocks" selected="selected">Stack Blocks</option>
+                </select>
+              </label>
+              <label for="rollout-trial">Trial
+                <select id="rollout-trial"></select>
+              </label>
+            </div>
+            <p class="trial-description" id="rollout-status" role="status"></p>
+            <div class="video-grid" id="rollout-videos"></div>
+            <noscript><p>Enable JavaScript to browse the evaluation videos.</p></noscript>
+          </div>
+        </div>
+        <figure class="setup-note">
+          <img src="img/real_sence.jpg" width="608" height="456" loading="lazy" alt="UR5e arm and parallel gripper at the tabletop evaluation station" />
+          <figcaption><strong>Deployment setup.</strong> The UR5e uses a Robotiq 2F-85 gripper and fixed external and wrist-mounted RGB cameras.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="citation" aria-labelledby="citation-title">
+      <div class="wrap">
+        <header class="section-head">
+          <h2 id="citation-title">Citation</h2>
+          <p>This page reflects the revised manuscript. The linked arXiv record is the 2025 preprint, cited below under its original title. Updated experiment code and data are being prepared for release.</p>
+        </header>
+        <pre><code>@article{deng2025eqbot,
+  title   = {Eq.Bot: Enhance Robotic Manipulation Learning via Group Equivariant Canonicalization},
+  author  = {Deng, Jian and Wang, Yuandong and Zhu, Yangfu and Feng, Tao and Wo, Tianyu and Shao, Zhenzhou},
+  journal = {arXiv preprint arXiv:2511.15194},
+  year    = {2025}
+}</code></pre>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap"><a href="#top">Back to top</a></div>
+  </footer>
+  <script src="rollouts.js" defer="defer"></script>
+</body>
+</html>
