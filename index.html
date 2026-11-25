@@ -189,7 +189,7 @@
         </figure>
         <ol class="stages">
           <li><h3>Align the observation</h3><p>Estimate the transformation from the canonical frame to the observation frame. Apply its inverse to align the input observation with a common geometric reference.</p></li>
-          <li><h3>Predict in the canonical frame</h3><p>Pass the aligned observation and original instruction to the base policy. A single forward pass predicts the action in the canonical frame using the base policy’s action native representation.</p></li>
+          <li><h3>Predict in the canonical frame</h3><p>Pass the aligned observation and original instruction to the base policy. A single forward pass predicts the action in the canonical frame using the base policy’s native action representation.</p></li>
           <li><h3>Recover the original action</h3><p>Map the predicted action back to the original frame using the same transformation. The recovery operator handles spatial affordances, Cartesian poses or increments, and bimanual joint targets.</p></li>
         </ol>
         <div class="variants">
