@@ -11,19 +11,19 @@
     "place-object": {
       folder: "place object",
       label: "Place Object",
-      example: 8,
+      example: 1,
       instruction: "Move the white block next to the red bowl into the gray bowl."
     },
     "pack-box": {
       folder: "pack box",
       label: "Pack Box",
-      example: 10,
+      example: 1,
       instruction: "Place the brown toy in the green basin."
     },
     "stack-blocks": {
       folder: "stack blocks",
       label: "Stack Blocks",
-      example: 8,
+      example: 1,
       instruction: "Stack the white block on the red block."
     }
   };
