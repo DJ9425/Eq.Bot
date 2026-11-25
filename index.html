@@ -107,7 +107,7 @@
     .trial-description { margin-bottom: .8rem; color: var(--muted); max-width: none; }
     .video-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: .7rem; }
     .clip { overflow: hidden; border: 1px solid var(--line); background: #f7faf9; border-radius: .45rem; }
-    .clip video { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #13252a; }
+    .clip video { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: #13252a; }
     .clip figcaption { padding: .48rem .65rem; color: var(--ink); font-weight: 650; font-size: .87rem; }
     .clip figcaption a { display: inline-block; margin-left: .35rem; font-weight: 500; }
     .setup-photo { overflow: hidden; border-radius: .65rem; }
@@ -267,7 +267,7 @@
         <div class="subsection">
           <header class="section-head">
             <h3>Browse all evaluation trials</h3>
-            <p>Select a task and trial number to compare OpenVLA-OFT, OptNet-CNN, OptNet-Res50, and DirNet at the same trial index. The four selected videos play inline on a muted loop. The 120 recordings include successful and unsuccessful trials.</p>
+            <p>Select a task and trial number to compare OpenVLA-OFT, OptNet-CNN, OptNet-Res50, and DirNet at the same trial index. The four selected videos play once, muted, and hold on their final frames. The 120 recordings include successful and unsuccessful trials.</p>
           </header>
           <div class="trial-browser" id="trial-browser" data-video-base="videos/all">
             <div class="trial-controls">
@@ -294,6 +294,6 @@
   <footer class="site-footer">
     <div class="wrap"><a href="#top">Back to top</a></div>
   </footer>
-  <script src="rollouts.js?v=autoplay-1" defer="defer"></script>
+  <script src="rollouts.js?v=play-once-1" defer="defer"></script>
 </body>
 </html>

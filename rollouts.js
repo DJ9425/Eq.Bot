@@ -75,7 +75,6 @@
       video.controls = true;
       video.playsInline = true;
       video.preload = "metadata";
-      video.loop = true;
       video.muted = true;
       video.defaultMuted = true;
       video.autoplay = allowAutoplay;
