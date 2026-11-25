@@ -166,9 +166,6 @@
             <p>Robotic manipulation is shifting from task-specific learning towards general-purpose vision-language-action (VLA) models. Despite their strong semantic generalization, these models remain sensitive to geometric transformations such as rotations. Existing approaches introduce equivariance through specialized architectures or symmetrization, often requiring network modifications or repeated policy evaluations. Meanwhile, heterogeneous action representations across VLA architectures further complicate maintaining geometric consistency.</p>
             <p>Inspired by human spatial reasoning, we propose Eq.Bot, a model-agnostic canonicalization framework grounded in group equivariance for geometrically consistent robotic manipulation. Eq.Bot aligns observations to a learned canonical frame, evaluates the base policy once, and recovers actions in the original coordinates through representation-specific mappings, preserving the policy's internal architecture.</p>
             <p>Experiments across four simulation benchmarks and three real-world tasks demonstrate improved manipulation performance across CNN- and Transformer-based policies of different scales while introducing modest inference overhead.</p>
-            <!-- <p>Recognizing the target object does not ensure that a robot’s action rotates with the scene. This challenge spans policies that predict pixel affordances, Cartesian motions, and joint targets.</p>
-            <p>Eq.Bot aligns each observation to a learned canonical frame and runs the base policy once. It then uses the same frame to recover the predicted action in the original coordinates, respecting the policy’s native output representation.</p>
-            <p>Both mappings operate outside the policy network. Across four simulation benchmarks and three physical tasks, Eq.Bot improves manipulation performance for CNN- and Transformer-based policies.</p> -->
           </div>
           <figure class="hero-figure" id="visual-intro">
             <a href="img/visual_intr.png"><img src="img/visual_intr.png" width="2320" height="1436" alt="View the full-size figure comparing human mental alignment, direct policy prediction, and Eq.Bot on a rotated scene" /></a>
@@ -186,7 +183,7 @@
         </header>
         <figure class="figure">
           <img src="img/overview.jpg" width="6554" height="2606" loading="lazy" alt="Eq.Bot pipeline with observation alignment, base-policy prediction and action recovery, including DirNet and OptNet frame scoring" />
-          <figcaption>Top: Eq.Bot reuses the same frame transform for observation alignment and action recovery. Bottom: DirNet and OptNet implement alternative frame estimators.</figcaption>
+          <figcaption>Top: Eq.Bot reuses the same frame for observation alignment and action recovery. Bottom: DirNet and OptNet implement alternative frame estimators.</figcaption>
         </figure>
         <ol class="stages">
           <li><h3>Align the observation</h3><p>Estimate a transform from the canonical frame to the original frame. Apply its inverse to the observation to obtain the canonical view.</p></li>
@@ -207,7 +204,7 @@
       <div class="wrap">
         <header class="section-head">
           <h2 id="results-title">Experimental Results</h2>
-          <p>We compare Eq.Bot with the corresponding base policies across four simulation benchmarks. Ravens tests spatial manipulation under different demonstration budgets; LIBERO covers four manipulation suites, VLABench tests generalization across five tracks, and RoboTwin 2.0 evaluates bimanual manipulation under Clean and Randomized conditions. Select a figure to view the full comparison.</p>
+          <p>We compare Eq.Bot with the corresponding base policies across four simulation benchmarks. Ravens tests spatial manipulation under different demonstration budgets; LIBERO covers four manipulation suites, VLABench tests generalization across five tracks, and RoboTwin 2.0 evaluates bimanual manipulation under Clean and Randomized conditions.</p>
         </header>
         <div class="subsection">
           <h3>Simulation Results</h3>
@@ -216,7 +213,7 @@
             <figcaption><strong>CNN-based policies.</strong> Task completion scores (%) on Ravens for CLIPORT, its Eq.Bot variants, and three reference methods across seen and unseen settings.</figcaption>
           </figure>
           <div class="result-analysis">
-            <p><strong>Ravens.</strong> With 100 demonstrations, OptNet and DirNet raise CLIPORT’s completion score on <i>align-rope</i> from 62.4% to 92.6% and 93.6%. With just 10 demonstrations on <i>packing-unseen-shapes</i>, completion rises from 28.0% to 38.0% and 44.0%. These gains span both precise spatial manipulation and generalization to unseen object shapes.</p>
+            <p><strong>Ravens.</strong> With 100 demonstrations, OptNet and DirNet raise CLIPORT’s completion score on <i>align-rope</i> from 62.4% to 92.6% and 93.6%. These gains span both precise spatial manipulation and generalization to unseen object shapes.</p>
           </div>
           <figure class="figure result-figure" id="libero">
             <a href="img/transformers.png" target="_blank" rel="noopener"><img src="img/transformers.png" width="2595" height="969" loading="lazy" alt="Full LIBERO, VLABench, and RoboTwin 2.0 results for Transformer-based policies and their Eq.Bot variants" /></a>
@@ -268,7 +265,7 @@
         <div class="subsection">
           <header class="section-head">
             <h3>Browse all evaluation trials</h3>
-            <p>Select a task and trial number to compare OpenVLA-OFT, OptNet-CNN, OptNet-Res50, and DirNet at the same trial index. All 120 recordings are available, including successful and unsuccessful runs, so individual outcomes can be viewed alongside the aggregate scores.</p>
+            <p>Select a task and trial number to compare OpenVLA-OFT, OptNet-CNN, OptNet-Res50, and DirNet at the same trial index. All 120 recordings are available, including successful and unsuccessful runs.</p>
           </header>
           <div class="trial-browser" id="trial-browser" data-video-base="videos/all">
             <div class="trial-controls">
