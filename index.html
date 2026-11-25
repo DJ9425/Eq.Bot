@@ -59,7 +59,7 @@
     .hero-figure { overflow: hidden; border-radius: .75rem; border: 1px solid var(--line); background: #fff; box-shadow: 0 9px 25px #21443d12; }
     .hero-figure a { display: block; }
     .hero-figure img { padding: .45rem; }
-    .hero-figure figcaption { padding: .5rem .75rem; font-size: .92rem; color: var(--muted); }
+    .hero-figure figcaption { padding: .5rem .75rem; font-size: .92rem; color: var(--muted); text-align: center; }
     .submission-status { max-width: none; margin-top: .8rem; color: var(--muted); font-size: 1rem; font-weight: 680; }
     .section { padding-block: clamp(2rem, 4.5vw, 3.7rem); border-bottom: 1px solid var(--line); scroll-margin-top: .8rem; }
     .tinted { background: var(--paper); }
@@ -70,9 +70,10 @@
     .figure { margin-top: 1.35rem; overflow: hidden; border: 1px solid var(--line); border-radius: .8rem; background: white; }
     .figure img { padding: .5rem; }
     .figure figcaption { padding: .7rem 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .93rem; }
+    .architecture-figure figcaption { text-align: center; }
     .stages { list-style: none; padding: 0; margin: 1.35rem 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
     .stages li { padding: 1rem 1.08rem; background: white; border: 1px solid var(--line); border-top: 3px solid var(--teal); border-radius: .55rem; }
-    .stages p, .variants p { margin-top: .45rem; color: var(--muted); }
+    .stages p, .variants p { margin-top: .45rem; color: var(--muted); text-align: justify; hyphens: auto; overflow-wrap: break-word; }
     .variants { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; margin-top: 1.2rem; }
     .variants article { background: #fff; border: 1px solid var(--line); border-radius: .55rem; padding: 1rem 1.08rem; }
     .variants article:first-child h3 { color: var(--teal-dark); }
@@ -92,6 +93,7 @@
     .result-figure a { display: block; }
     .result-figure a:focus-visible { outline-offset: -4px; }
     .result-figure figcaption { text-align: center; }
+    #libero figcaption { text-align: justify; hyphens: auto; }
     .result-analysis { display: grid; gap: .6rem; margin-block: .85rem 1.25rem; color: var(--muted); }
     .result-analysis p { max-width: none; }
     .rollout-results { margin-top: 0; }
@@ -181,14 +183,14 @@
           <h2 id="architecture-title">Model Architecture</h2>
           <p>Eq.Bot uses one learned frame to couple observation canonicalization with action recovery. The inverse frame transform aligns the observation before prediction, while the forward transform recovers the predicted action in the original coordinates. Only the selected view is passed to the base policy, so its architecture, language input, and native action interface are preserved.</p>
         </header>
-        <figure class="figure">
+        <figure class="figure architecture-figure">
           <img src="img/overview.jpg" width="6554" height="2606" loading="lazy" alt="Eq.Bot pipeline with observation alignment, base-policy prediction and action recovery, including DirNet and OptNet frame scoring" />
           <figcaption>Top: Eq.Bot reuses the same frame for observation alignment and action recovery. Bottom: DirNet and OptNet implement alternative frame estimators.</figcaption>
         </figure>
         <ol class="stages">
-          <li><h3>Align the observation</h3><p>Estimate a transform from the canonical frame to the original frame. Apply its inverse to the observation to obtain the canonical view.</p></li>
-          <li><h3>Predict in the canonical frame</h3><p>Run the base policy once on the selected view. Its architecture, language instruction, and action representation remain unchanged.</p></li>
-          <li><h3>Recover the original action</h3><p>Use the estimated frame to transform spatial affordances, Cartesian poses or increments, or bimanual joint targets. Each mapping respects the base policy’s action representation.</p></li>
+          <li><h3>Align the observation</h3><p>Estimate the transformation from the canonical frame to the observation frame. Apply its inverse to align the input observation with a common geometric reference.</p></li>
+          <li><h3>Predict in the canonical frame</h3><p>Pass the aligned observation and original instruction to the base policy. A single forward pass predicts the action in the canonical frame using the policy’s native representation.</p></li>
+          <li><h3>Recover the original action</h3><p>Map the predicted action back to the original frame using the same transformation. The recovery operator handles spatial affordances, Cartesian poses or increments, and bimanual joint targets.</p></li>
         </ol>
         <div class="variants">
           <article><h3>DirNet</h3><p>Group-equivariant features encode candidate orientations in separate channels. Pooling over the spatial and feature dimensions yields a score for each candidate directly from the observation.</p></article>
@@ -265,7 +267,7 @@
         <div class="subsection">
           <header class="section-head">
             <h3>Browse all evaluation trials</h3>
-            <p>Select a task and trial number to compare OpenVLA-OFT, OptNet-CNN, OptNet-Res50, and DirNet at the same trial index. All 120 recordings are available, including successful and unsuccessful runs, so individual outcomes can be viewed alongside the aggregate scores.</p>
+            <p>Select a task and trial number to compare OpenVLA-OFT, OptNet-CNN, OptNet-Res50, and DirNet at the same trial index. The four selected videos play inline on a muted loop. The 120 recordings include successful and unsuccessful trials.</p>
           </header>
           <div class="trial-browser" id="trial-browser" data-video-base="videos/all">
             <div class="trial-controls">
@@ -292,6 +294,6 @@
   <footer class="site-footer">
     <div class="wrap"><a href="#top">Back to top</a></div>
   </footer>
-  <script src="rollouts.js?v=loop-1" defer="defer"></script>
+  <script src="rollouts.js?v=autoplay-1" defer="defer"></script>
 </body>
 </html>

@@ -39,16 +39,6 @@
   const allTrials = Boolean(videoBase || local);
 
   const allowAutoplay = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const playbackObserver = allowAutoplay && "IntersectionObserver" in window
-    ? new IntersectionObserver((entries, observer) => {
-        for (const { isIntersecting, target } of entries) {
-          if (!isIntersecting) continue;
-          observer.unobserve(target);
-          // Controls remain available when the browser blocks autoplay.
-          target.play().catch(() => {});
-        }
-      }, { threshold: 0.25 })
-    : null;
 
   function clipUrl(task, trial, policy) {
     if (videoBase) {
@@ -71,7 +61,6 @@
     }
 
     for (const video of grid.querySelectorAll("video")) {
-      playbackObserver?.unobserve(video);
       video.pause();
       video.removeAttribute("src");
       video.load();
@@ -85,11 +74,11 @@
       const video = document.createElement("video");
       video.controls = true;
       video.playsInline = true;
-      video.preload = "none";
+      video.preload = "metadata";
       video.loop = true;
       video.muted = true;
       video.defaultMuted = true;
-      video.autoplay = allowAutoplay && !playbackObserver;
+      video.autoplay = allowAutoplay;
       video.setAttribute("aria-label", `${label}, trial ${trial}: ${policy.label}`);
       video.src = url;
 
@@ -104,7 +93,6 @@
       caption.append(link);
       figure.append(video, caption);
       grid.append(figure);
-      playbackObserver?.observe(video);
     }
   }
 
